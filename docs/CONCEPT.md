@@ -8,8 +8,9 @@ Stand: 2026-11-27 · Phase: Konzeption · ✅ entschieden · ❓ offen · 🔬 i
 ## Was Cortex ist
 
 Cortex beobachtet, wie die Bewohner ihr Smart Home **von Hand** bedienen, und schlägt daraus höchstens
-**5 Automatisierungen** vor, die sich lohnen würden. Cortex schaltet selbst nichts und legt keine Skripte an –
-die Entscheidung trifft der Benutzer.
+**5 Automatisierungen** vor, die sich lohnen würden. Cortex handelt nie eigenmächtig – die Entscheidung trifft der
+Benutzer. Ab Version 0.2 kann er einen Vorschlag mit einem Klick umsetzen; Cortex führt die Automation dann selbst
+aus und prüft, ob sie passt (siehe „Umsetzen mit einem Klick“).
 
 Cortex nutzt keine Cloud-KI. Alle Entscheidungen werden lokal aus den Beobachtungen des Smart Homes abgeleitet.
 Dadurch bleiben die Daten im Haus und jede Empfehlung ist nachvollziehbar („an 14 von 17 Werktagen …“).
@@ -137,7 +138,7 @@ Reaktionen des Benutzers:
 
 | Reaktion | Bedeutung |
 |---|---|
-| **Annehmen** | Der Benutzer setzt die Automation um. Cortex legt sie nicht selbst an. |
+| **Annehmen** | 0.1: Der Benutzer setzt die Automation selbst um. Ab 0.2: „Umsetzen“ – Cortex führt sie als eigene Regel aus. |
 | **Bearbeiten** | „Gute Idee, aber anders“: Zielwert (z. B. 30 %), Zeitfenster oder Bedingung (z. B. nur nachts) anpassen; danach gilt der Vorschlag als angenommen. Die Änderung fließt als Wissen zurück. |
 | **Ablehnen** | Dauerhaft unterdrückt, solange sich die zugrunde liegenden Daten nicht wesentlich ändern (siehe unten). |
 | **Später** | Ausgeblendet für einen Zeitraum (Standard 7 Tage). |
@@ -178,10 +179,34 @@ Die feste Obergrenze von 5 Vorschlägen erlaubt die Darstellung im Admin (jsonCo
 Zeitmuster brauchen 2–3 Wochen Daten. Cortex sagt das offen:
 „Ich lerne seit 5 Tagen. Erste Vorschläge ca. ab Tag 14.“
 
+## Umsetzen mit einem Klick (ab 0.2) ✅
+
+Entschieden: **Cortex führt angenommene Vorschläge als eigene Regeln aus** (Weg B), statt Skripte für den
+javascript-Adapter zu erzeugen (Weg A).
+
+| | Begründung |
+|---|---|
+| Läuft überall | Keine Voraussetzung wie der javascript-Adapter |
+| Klein | Nur die Regeltypen, die Cortex auch erkennt: **Zeit/Sonne → Aktion** und **Auslöser → Aktion** (optional „nur bei Dunkelheit“). Keine allgemeine Regel-Engine. |
+| Transparent | Jede Regel ist im Admin (und in SmartVis) sichtbar, mit Begründung, ein-/ausschaltbar und löschbar |
+| Lernend | Cortex beobachtet seine eigenen Regeln: Schaltet der Benutzer nach einer Cortex-Aktion regelmäßig zurück oder um, schlägt Cortex eine Anpassung vor („Soll ich das Licht auf 30 % statt 100 % schalten?“) oder die Abschaltung der Regel |
+
+Weitere Festlegungen:
+
+- Cortex schaltet **nur** über angenommene Regeln, nie eigenmächtig
+- Eigene Schaltbefehle sind `script`-Ereignisse mit Absender `cortex` – sie zählen nie als Handgriff
+- Hauptschalter „Alle Cortex-Regeln pausieren“ (z. B. Urlaub, Gäste)
+- Optional für Bastler: Regel „als Skript exportieren“ (Blockly/JavaScript), danach verwaltet der Benutzer sie selbst
+- Sicherheit: Regeln nur für Aktionen (Licht, Schalter, Dimmer, Rollladen), nie für Schlösser, Alarmanlagen o. Ä.
+
+Erwartung an das Produkt: Ein Haushalt bekommt in den ersten Monaten etwa 5–15 gute Vorschläge, danach weniger –
+jede umgesetzte Automation entfernt die Handgriffe, aus denen Cortex lernt. Das ist das Ziel, kein Mangel. Cortex
+zeigt den Nutzen offen an („Seit Cortex sparst du ~40 Handgriffe pro Woche“).
+
 ## Bewusst nicht in v0.1
 
 Messwerte · Ketten mit mehr als zwei Gliedern · Anwesenheit/Personen · Saisonalität jenseits des Sonnenstands ·
-automatisches Anlegen von Skripten · Import von Altdaten
+Umsetzen mit einem Klick (→ 0.2) · Import von Altdaten
 
 ## Fahrplan
 
@@ -189,7 +214,8 @@ automatisches Anlegen von Skripten · Import von Altdaten
 |---|---|---|
 | **0.0.1 Rekorder** | Gerüst, Relevanz-Filter, Einstufung Mensch/Skript/Sensor, Ereignis-Log, Statistik-States, Admin-Konfiguration | **Beweisen, dass „Mensch oder Skript“ zuverlässig erkannt wird** – wichtigster Meilenstein des Projekts |
 | 0.0.x | Einstufungsregeln an realen Daten nachschärfen | Datenqualität |
-| 0.1.0 | Zeitmuster, Auslöser → Aktion, Vorschläge mit Feedback, State-API, Admin-Ansicht | MVP |
+| 0.1.0 | Zeitmuster, Auslöser → Aktion, Vorschläge mit Feedback, State-API, Admin-Ansicht | MVP: Sind die Vorschläge gut? |
+| 0.2.0 | Umsetzen mit einem Klick: Cortex-Regeln, Hauptschalter, Beobachtung der eigenen Regeln | Nutzen ohne Skript-Kenntnisse |
 | danach | Cortex in SmartVis | bevorzugte Oberfläche |
 
 ## Offene Fragen
