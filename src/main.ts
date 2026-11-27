@@ -117,7 +117,7 @@ class Cortex extends utils.Adapter {
             };
             const next = findRelevant(objects, options);
             this.contextSources = findContextSources(objects, {
-                configured: Array.isArray(this.config.contextValues) ? this.config.contextValues : [],
+                configured: listOf(this.config.contextValues),
                 autoRooms: this.config.contextRooms !== false,
                 ignoreAdapters: options.ignoreAdapters,
                 exclude: options.exclude,
@@ -308,6 +308,14 @@ class Cortex extends utils.Adapter {
             callback();
         }
     }
+}
+
+/** Table from the settings; also accepts an object with numeric keys (merged configurations) */
+function listOf<T>(value: T[] | Record<string, T> | undefined): T[] {
+    if (Array.isArray(value)) {
+        return value;
+    }
+    return value && typeof value === 'object' ? Object.values(value) : [];
 }
 
 function clamp(value: unknown, min: number, max: number, fallback: number): number {
