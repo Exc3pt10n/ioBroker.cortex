@@ -65,4 +65,22 @@ describe('findContextSources', () => {
     it('records no room values when switched off', () => {
         assert.deepEqual(findContextSources(objects, { ...options, autoRooms: false }), []);
     });
+
+    it('presence and modes are recorded on change', () => {
+        const sources = findContextSources(objects, {
+            ...options,
+            autoRooms: false,
+            modes: [
+                { id: '0_userdata.0.holiday', kind: 'holiday' },
+                { id: 'ping.0.phone', kind: 'unknown' },
+            ],
+        });
+        assert.deepEqual(
+            sources.map(s => [s.id, s.kind, s.onChange]),
+            [
+                ['0_userdata.0.holiday', 'mode.holiday', true],
+                ['ping.0.phone', 'mode.other', true],
+            ],
+        );
+    });
 });

@@ -15,6 +15,8 @@ declare global {
             retentionDays: number;
             /** Outdoor values chosen by the user */
             contextValues: { id: string; kind: string }[];
+            /** Presence and mode states chosen by the user (recorded on change, not exported) */
+            modeValues: { id: string; kind: string }[];
             /** Record room temperature and humidity automatically */
             contextRooms: boolean;
         }

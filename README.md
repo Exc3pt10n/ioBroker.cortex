@@ -29,11 +29,12 @@ Cortex uses no cloud AI. All decisions are derived locally from what happens in 
   A device report shortly after a command only confirms it and is not counted again. Reports of the same device after a command (status channel, a blind that is still moving) and reports of other devices of the same adapter instance right after it (lamps of a group or scene) take over the origin of the command. Several changes of one adapter within a short time (scene, group) count as one action.
 - **Keeps a local event log** (one file per day in the instance data directory, 60 days by default).
 - **Records context values** every 15 minutes: outdoor values chosen in the settings (temperature, brightness, wind …) and, automatically, the temperature and humidity of all sensors assigned to a room (`info.contextSources`). Later versions use them to recognise actions that depend on the weather or the room climate (e.g. blinds down on hot days). Season, sun position and weekday are calculated from the time and location and are not recorded.
+- **Records presence and modes** chosen in the settings (presence, holiday, guests, alarm system) on every change. They often explain behaviour better than the time of day. They stay on your system and are **never** part of the anonymous export.
 - **Shows statistics** as states: manual/automated actions today, share of manual actions, adapters with unknown origin, the most recent actions in plain text (`stats.recentText`).
 
 ## Helping to check the detection
 
-Look at `cortex.0.stats.recentText` from time to time: does the origin of each action match what really happened? If you would like to help improve Cortex, create an **anonymous export** in the instance settings and attach it to an issue. The export contains times, values, roles and the origin of each event – **no names, rooms or object IDs** (IDs are replaced by a hash with a random secret of your installation).
+Look at `cortex.0.stats.recentText` from time to time: does the origin of each action match what really happened? If you would like to help improve Cortex, create an **anonymous export** in the instance settings and attach it to an issue. The export contains times, values, roles and the origin of each event and the outdoor/room values – **no names, rooms, object IDs, presence or modes** (IDs are replaced by a hash with a random secret of your installation).
 
 ## Configuration
 
@@ -48,6 +49,7 @@ Look at `cortex.0.stats.recentText` from time to time: does the origin of each a
 | Additional / excluded states | – | Observe IDs without a matching role, or never observe them (prefix, `*` as wildcard) |
 | Record room temperature and humidity | on | Temperature and humidity sensors with a room are recorded as context values |
 | Outdoor values | – | States recorded as outdoor context values, each with its kind (temperature, brightness …); outdoor sensors assigned to a room like "Garden" belong here |
+| Presence and modes | – | States recorded on every change as presence, holiday, guests or alarm system; never exported |
 | Keep events | 60 days | Older days are deleted |
 
 Requirements: js-controller ≥ 6.0.11, Admin ≥ 7.6.20, Node.js ≥ 22.

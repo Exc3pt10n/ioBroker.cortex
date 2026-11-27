@@ -102,7 +102,11 @@ describe('buildExport', () => {
                 },
             ],
             [event(1000, 'device', 'hue.0.Living_room.on')],
-            [{ t: 1000, k: 'outdoor.temperature', id: 'hm-rpc.0.WEATHER.1.ACTUAL_TEMPERATURE', v: 27.5 }],
+            [
+                { t: 1000, k: 'outdoor.temperature', id: 'hm-rpc.0.WEATHER.1.ACTUAL_TEMPERATURE', v: 27.5 },
+                // Presence never leaves the system
+                { t: 2000, k: 'mode.presence', id: 'ping.0.phone', v: false },
+            ],
             'secret',
             {},
         );
@@ -115,6 +119,7 @@ describe('buildExport', () => {
         assert.equal(header.states[0].key, line.key);
         assert.equal(header.states[0].instance, 'hue.0');
         assert.equal(text.includes('WEATHER'), false);
+        assert.equal(text.includes('mode.'), false);
         assert.deepEqual(
             { ...context, key: undefined },
             {

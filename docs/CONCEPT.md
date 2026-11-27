@@ -151,6 +151,15 @@ draußen über 26 °C hat und die Sonne auf der Südseite steht – an kühleren
 | Abgeleitet | Jahreszeit, Tageslänge, Sonnenauf-/-untergang, Sonnenstand, Wochentag | **nicht aufgezeichnet** – jederzeit aus Zeitstempel und Standort berechenbar, auch rückwirkend. Feiertage/Schulferien später (brauchen das Bundesland) |
 | Außen | Temperatur, Helligkeit (auch je Fassade), Wind, Regen | **Liste im Admin**, Benutzer wählt einmal aus – welcher Sensor „außen“ ist, lässt sich nicht zuverlässig erkennen |
 | Raum | Raumtemperatur, Luftfeuchte | **automatisch**: Rollen `value.temperature`/`value.humidity` mit Raum in `enum.rooms` (abschaltbar). Außenwerte aus der Liste haben Vorrang – Außensensoren stehen oft in „Räumen“ wie Garten |
+| Anwesenheit und Modi | zu Hause/abwesend, Urlaub, Gäste, Alarmanlage scharf | **Liste im Admin** (State + Art), aufgezeichnet **bei jeder Änderung** (der Zeitpunkt zählt, Werte sind Zustände statt Zahlen). Bleiben lokal, **nie im anonymen Export** – Anwesenheit ist das sensibelste Datum im Haus |
+
+Warum Anwesenheit und Modi: Sie erklären Verhalten oft besser als jede Uhrzeit. „Rollladen 7:00 hoch“ gilt nur, wenn
+jemand zu Hause ist; im Urlaub fallen Handgriffe weg (sonst deutet Cortex das als „Muster gilt nicht mehr“); Gäste
+erzeugen Ausreißer. Cortex nutzt sie als **Filter** für alle Musterarten (Tage ohne Anwesenheit oder im Urlaub zählen
+nicht gegen ein Muster), nicht als eigenen Vorschlagstyp.
+
+Bewusst nicht erfasst: Medien (eher spätere Geräteklasse), Energie/PV-Überschuss (eigenes Thema; über „Sonstiges“
+bei den Außenwerten möglich), Unterscheidung einzelner Personen (unzuverlässig und datenschutzrechtlich heikel).
 
 **Breit sammeln, eng auswerten:** Viele Variablen erzeugen Zufallstreffer („Flurlicht an, wenn die Luftfeuchte im
 Bad über 60 % liegt“ – statistisch wahr, als Automation Unsinn). Ausgewertet werden daher nur plausible
@@ -258,7 +267,7 @@ zeigt den Nutzen offen an („Seit Cortex sparst du ~40 Handgriffe pro Woche“)
 ## Bewusst nicht in v0.1
 
 Messwerte als Auslöser · Bedingung → Aktion (→ nach 0.2; Aufzeichnung läuft schon) · Ketten mit mehr als zwei
-Gliedern · Anwesenheit/Personen · Umsetzen mit einem Klick (→ 0.2) · Import von Altdaten
+Gliedern · einzelne Personen · Umsetzen mit einem Klick (→ 0.2) · Import von Altdaten
 
 ## Fahrplan
 

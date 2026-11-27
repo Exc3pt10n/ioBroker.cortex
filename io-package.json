@@ -96,7 +96,8 @@
         "externalWindow": 3,
         "retentionDays": 60,
         "contextValues": [],
-        "contextRooms": true
+        "contextRooms": true,
+        "modeValues": []
     },
     "objects": [],
     "instanceObjects": [

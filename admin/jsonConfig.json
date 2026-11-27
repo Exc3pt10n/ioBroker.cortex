@@ -184,6 +184,63 @@
                 }
             ]
         },
+        "_modesHelp": {
+            "type": "staticText",
+            "text": "Presence and modes explain behaviour better than any time of day (nobody at home, holiday, guests). They are recorded on every change, stay on this system and are never part of the anonymous export.",
+            "newLine": true,
+            "xs": 12,
+            "sm": 12,
+            "md": 12,
+            "lg": 8,
+            "xl": 8
+        },
+        "modeValues": {
+            "type": "table",
+            "label": "Presence and modes",
+            "newLine": true,
+            "xs": 12,
+            "sm": 12,
+            "md": 12,
+            "lg": 8,
+            "xl": 8,
+            "items": [
+                {
+                    "type": "objectId",
+                    "attr": "id",
+                    "title": "State",
+                    "width": "65%"
+                },
+                {
+                    "type": "select",
+                    "attr": "kind",
+                    "title": "Kind",
+                    "width": "35%",
+                    "default": "presence",
+                    "options": [
+                        {
+                            "label": "Presence",
+                            "value": "presence"
+                        },
+                        {
+                            "label": "Holiday",
+                            "value": "holiday"
+                        },
+                        {
+                            "label": "Guests",
+                            "value": "guests"
+                        },
+                        {
+                            "label": "Alarm system",
+                            "value": "alarm"
+                        },
+                        {
+                            "label": "Other",
+                            "value": "other"
+                        }
+                    ]
+                }
+            ]
+        },
         "_log": {
             "type": "header",
             "text": "Event log",

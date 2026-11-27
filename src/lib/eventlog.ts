@@ -10,14 +10,15 @@ import { join } from 'node:path';
 import type { RecordedEvent } from './classify';
 import { dayKey } from './stats';
 
-/** Measured value at a point in time (outdoor temperature, brightness …) */
+/** Context value at a point in time (outdoor temperature, room humidity, presence …) */
 export interface ContextSample {
     t: number;
     /** Kind of value, e.g. "outdoor.temperature", "room.humidity" */
     k: string;
     /** State the value was read from */
     id: string;
-    v: number;
+    /** Number for measured values; boolean or text for presence and modes */
+    v: number | boolean | string;
 }
 
 export class JsonlLog<T extends { t: number }> {
@@ -110,7 +111,7 @@ export class JsonlLog<T extends { t: number }> {
 /** Log of recorded events */
 export class EventLog extends JsonlLog<RecordedEvent> {}
 
-/** Log of context values, sampled periodically */
+/** Log of context values: measured values sampled periodically, presence and modes on every change */
 export class ContextLog extends JsonlLog<ContextSample> {
     public constructor(dir: string) {
         super(dir, 'context');

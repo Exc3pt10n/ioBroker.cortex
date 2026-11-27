@@ -2,7 +2,7 @@
  * Anonymous export of the recorded data – to check the classification with data from many installations.
  *
  * Contains: adapter instance, role and category of each state, time, value, origin and sending adapter, and the
- * sampled context values (outdoor temperature, brightness).
+ * sampled context values (outdoor temperature, brightness, room climate) – but never presence or modes.
  * Does not contain: object IDs, names, rooms. IDs are replaced by a hash with a random secret of this
  * installation, so they cannot be recovered by trying out common IDs.
  */
@@ -47,6 +47,10 @@ export function buildExport(
         lines.push(JSON.stringify(exported));
     }
     for (const sample of context) {
+        // Presence and modes reveal when nobody is at home: they never leave the system
+        if (sample.k.startsWith('mode.')) {
+            continue;
+        }
         const { id, ...rest } = sample;
         lines.push(JSON.stringify({ type: 'context', key: anonymousKey(id, secret), ...rest }));
     }

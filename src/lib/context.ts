@@ -7,14 +7,20 @@
  */
 import { instanceOf, matchesAny, readableName, roomIndex, findRoom, type ObjectMap } from './relevance';
 
+/** Kinds the user can choose for presence and mode states (recorded on every change, never exported) */
+export const MODE_KINDS = ['presence', 'holiday', 'guests', 'alarm', 'other'] as const;
+export type ModeKind = (typeof MODE_KINDS)[number];
+
 /** Kinds the user can choose for outdoor values */
 export const OUTDOOR_KINDS = ['temperature', 'brightness', 'humidity', 'wind', 'rain', 'other'] as const;
 export type OutdoorKind = (typeof OUTDOOR_KINDS)[number];
 
 export interface ContextSource {
     id: string;
-    /** "outdoor.temperature", "room.humidity" … */
+    /** "outdoor.temperature", "room.humidity", "mode.presence" … */
     kind: string;
+    /** Recorded on every change instead of every 15 minutes (presence, modes) */
+    onChange?: boolean;
     name: string;
     room?: string;
 }
@@ -32,6 +38,8 @@ const ROOM_ROLES: Record<string, string> = {
 
 export interface ContextOptions {
     configured: ConfiguredContextValue[];
+    /** Presence and mode states chosen by the user */
+    modes?: ConfiguredContextValue[];
     /** Find room temperature and humidity automatically */
     autoRooms: boolean;
     ignoreAdapters: string[];
@@ -55,6 +63,22 @@ export function findContextSources(objects: ObjectMap, options: ContextOptions):
             kind: `outdoor.${kind}`,
             name: readableName(id, objects, options.lang),
             room: findRoom(id, rooms),
+        });
+    }
+
+    // Presence and modes: states, not numbers; the moment of the change matters
+    for (const entry of options.modes ?? []) {
+        const id = entry.id?.trim();
+        if (!id) {
+            continue;
+        }
+        const kind = MODE_KINDS.includes(entry.kind as ModeKind) ? entry.kind : 'other';
+        result.set(id, {
+            id,
+            kind: `mode.${kind}`,
+            name: readableName(id, objects, options.lang),
+            room: findRoom(id, rooms),
+            onChange: true,
         });
     }
 

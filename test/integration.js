@@ -5,6 +5,7 @@ const { tests } = require('@iobroker/testing');
 
 const LIGHT = '0_userdata.0.cortexTest.light';
 const TEMPERATURE = '0_userdata.0.cortexTest.outdoorTemperature';
+const HOLIDAY = '0_userdata.0.cortexTest.holiday';
 
 function sendTo(harness, command, message) {
     return new Promise(resolve => harness.sendTo('cortex.0', command, message, resolve));
@@ -54,8 +55,17 @@ tests.integration(path.join(__dirname, '..'), {
                     native: {},
                 });
                 await harness.states.setStateAsync(TEMPERATURE, { val: 27.5, ack: true });
+                await harness.objects.setObjectAsync(HOLIDAY, {
+                    type: 'state',
+                    common: { name: 'Holiday', role: 'state', type: 'boolean', read: true, write: true },
+                    native: {},
+                });
+                await harness.states.setStateAsync(HOLIDAY, { val: false, ack: true });
                 await harness.changeAdapterConfig('cortex', {
-                    native: { contextValues: [{ id: TEMPERATURE, kind: 'temperature' }] },
+                    native: {
+                        contextValues: [{ id: TEMPERATURE, kind: 'temperature' }],
+                        modeValues: [{ id: HOLIDAY, kind: 'holiday' }],
+                    },
                 });
                 await harness.startAdapterAndWait();
 
@@ -63,6 +73,9 @@ tests.integration(path.join(__dirname, '..'), {
                 expect(await waitForState(harness, 'cortex.0.info.observedActions', v => v >= 1)).to.equal(1);
                 const observed = JSON.parse((await harness.states.getStateAsync('cortex.0.info.observedStates')).val);
                 expect(observed[0]).to.include({ id: LIGHT, room: 'Test room', kind: 'action', category: 'light' });
+                const contextSources = JSON.parse((await harness.states.getStateAsync('cortex.0.info.contextSources')).val);
+                expect(contextSources.find(c => c.id === HOLIDAY)).to.include({ kind: 'mode.holiday' });
+                await harness.states.setStateAsync(HOLIDAY, { val: true, ack: true });
 
                 // Command from a user interface, then the confirmation of the "device"
                 await harness.states.setStateAsync(LIGHT, { val: true, ack: false, from: 'system.adapter.web.0' });
@@ -80,6 +93,8 @@ tests.integration(path.join(__dirname, '..'), {
                 const [header, ...events] = lines;
                 expect(header.states.filter(s => s.role === 'switch.light')).to.have.length(1);
                 expect(JSON.stringify(lines)).not.to.contain('cortexTest');
+                // Presence and modes are never exported
+                expect(JSON.stringify(lines)).not.to.contain('mode.');
                 // The test instance keeps its data directory between local runs: check the latest event
                 const recorded = events.filter(e => e.type !== 'context');
                 expect(recorded.length).to.be.greaterThan(0);

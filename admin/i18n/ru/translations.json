@@ -33,5 +33,11 @@
     "Humidity": "Влажность",
     "Wind": "Ветер",
     "Rain": "Дождь",
-    "Other": "Другое"
+    "Other": "Другое",
+    "Presence and modes explain behaviour better than any time of day (nobody at home, holiday, guests). They are recorded on every change, stay on this system and are never part of the anonymous export.": "Присутствие и режимы объясняют поведение лучше любого времени суток (никого нет дома, отпуск, гости). Они записываются при каждом изменении, остаются в этой системе и никогда не попадают в анонимный экспорт.",
+    "Presence and modes": "Присутствие и режимы",
+    "Presence": "Присутствие",
+    "Holiday": "Отпуск",
+    "Guests": "Гости",
+    "Alarm system": "Сигнализация"
 }

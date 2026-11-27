@@ -33,5 +33,11 @@
     "Humidity": "湿度",
     "Wind": "风",
     "Rain": "雨",
-    "Other": "其他"
+    "Other": "其他",
+    "Presence and modes explain behaviour better than any time of day (nobody at home, holiday, guests). They are recorded on every change, stay on this system and are never part of the anonymous export.": "在场状态和模式比任何时间点都更能解释行为（无人在家、度假、访客）。它们在每次变化时记录，保留在本系统中，绝不会包含在匿名导出中。",
+    "Presence and modes": "在场与模式",
+    "Presence": "在场",
+    "Holiday": "度假",
+    "Guests": "访客",
+    "Alarm system": "报警系统"
 }

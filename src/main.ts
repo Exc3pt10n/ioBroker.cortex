@@ -22,6 +22,9 @@ class Cortex extends utils.Adapter {
     private context?: ContextLog;
     private lastContextSample = 0;
     private contextSources: ContextSource[] = [];
+    /** Presence and mode states, recorded on every change */
+    private modes = new Map<string, ContextSource>();
+    private subscribed = new Set<string>();
     private stats = new StatsCollector(dayKey(Date.now()));
     private flushTimer?: ioBroker.Interval;
     private rescanTimer?: ioBroker.Interval;
@@ -118,6 +121,7 @@ class Cortex extends utils.Adapter {
             const next = findRelevant(objects, options);
             this.contextSources = findContextSources(objects, {
                 configured: listOf(this.config.contextValues),
+                modes: listOf(this.config.modeValues),
                 autoRooms: this.config.contextRooms !== false,
                 ignoreAdapters: options.ignoreAdapters,
                 exclude: options.exclude,
@@ -131,14 +135,26 @@ class Cortex extends utils.Adapter {
                 true,
             );
 
-            const removed = [...this.observed.keys()].filter(id => !next.has(id));
-            const added = [...next.keys()].filter(id => !this.observed.has(id));
+            const modes = new Map(this.contextSources.filter(c => c.onChange).map(c => [c.id, c]));
+            const newModes = [...modes.keys()].filter(id => !this.modes.has(id));
             this.observed = next;
+            this.modes = modes;
+            const wanted = new Set([...next.keys(), ...modes.keys()]);
+            const removed = [...this.subscribed].filter(id => !wanted.has(id));
+            const added = [...wanted].filter(id => !this.subscribed.has(id));
+            this.subscribed = wanted;
             if (removed.length) {
                 await this.unsubscribeForeignStatesAsync(removed);
             }
             if (added.length) {
                 await this.subscribeForeignStatesAsync(added);
+            }
+            // Current value of new presence/mode states, so the log knows the state from the start
+            for (const id of newModes) {
+                const state = await this.getForeignStateAsync(id);
+                if (state && state.val !== null) {
+                    this.context?.append({ t: Date.now(), k: modes.get(id)!.kind, id, v: state.val });
+                }
             }
 
             const states = [...next.values()];
@@ -169,6 +185,10 @@ class Cortex extends utils.Adapter {
     }
 
     private onStateChange(id: string, state: ioBroker.State | null | undefined): void {
+        const mode = this.modes.get(id);
+        if (mode && state && state.val !== null && state.lc === state.ts) {
+            this.context?.append({ t: state.ts, k: mode.kind, id, v: state.val });
+        }
         const observed = this.observed.get(id);
         if (!state || !observed || !this.classifier || !this.log_) {
             return;
@@ -212,6 +232,9 @@ class Cortex extends utils.Adapter {
     private async sampleContext(): Promise<void> {
         this.lastContextSample = Date.now();
         for (const source of this.contextSources) {
+            if (source.onChange) {
+                continue;
+            }
             try {
                 const state = await this.getForeignStateAsync(source.id);
                 const value = typeof state?.val === 'number' ? state.val : Number(state?.val);

@@ -33,5 +33,11 @@
     "Humidity": "Wilgotność",
     "Wind": "Wiatr",
     "Rain": "Deszcz",
-    "Other": "Inne"
+    "Other": "Inne",
+    "Presence and modes explain behaviour better than any time of day (nobody at home, holiday, guests). They are recorded on every change, stay on this system and are never part of the anonymous export.": "Obecność i tryby wyjaśniają zachowanie lepiej niż jakakolwiek pora dnia (nikogo nie ma w domu, urlop, goście). Są zapisywane przy każdej zmianie, pozostają w tym systemie i nigdy nie trafiają do anonimowego eksportu.",
+    "Presence and modes": "Obecność i tryby",
+    "Presence": "Obecność",
+    "Holiday": "Urlop",
+    "Guests": "Goście",
+    "Alarm system": "System alarmowy"
 }

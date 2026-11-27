@@ -33,5 +33,11 @@
     "Humidity": "Luchtvochtigheid",
     "Wind": "Wind",
     "Rain": "Regen",
-    "Other": "Overig"
+    "Other": "Overig",
+    "Presence and modes explain behaviour better than any time of day (nobody at home, holiday, guests). They are recorded on every change, stay on this system and are never part of the anonymous export.": "Aanwezigheid en modi verklaren gedrag beter dan elk tijdstip (niemand thuis, vakantie, gasten). Ze worden bij elke wijziging opgenomen, blijven op dit systeem en maken nooit deel uit van de anonieme export.",
+    "Presence and modes": "Aanwezigheid en modi",
+    "Presence": "Aanwezigheid",
+    "Holiday": "Vakantie",
+    "Guests": "Gasten",
+    "Alarm system": "Alarmsysteem"
 }
