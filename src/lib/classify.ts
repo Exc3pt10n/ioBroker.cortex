@@ -55,6 +55,8 @@ export interface RecordedEvent {
     b: number;
     /** 1 = device report caused by a preceding command to the same adapter instance (origin taken from the command) */
     c?: 1;
+    /** Origin "external": the sensor that changed just before */
+    x?: string;
 }
 
 export type ClassifyResult = { type: 'event'; event: RecordedEvent } | { type: 'confirmation' } | { type: 'ignored' };
@@ -99,7 +101,7 @@ export class Classifier {
     /** Last command per adapter instance: reports of other devices right after it (group, scene) belong to it */
     private readonly instanceCommands = new Map<string, LastCommand>();
     /** Last sensor change per adapter instance */
-    private readonly sensors = new Map<string, number>();
+    private readonly sensors = new Map<string, { ts: number; id: string }>();
 
     public constructor(private options: ClassifierOptions) {}
 
@@ -115,7 +117,7 @@ export class Classifier {
             if (!changed) {
                 return { type: 'ignored' };
             }
-            this.sensors.set(state.instance, change.ts);
+            this.sensors.set(state.instance, { ts: change.ts, id: state.id });
             return { type: 'event', event: this.event(state, change, 'sensor', sender) };
         }
 
@@ -158,9 +160,9 @@ export class Classifier {
             const event = this.event(state, change, instanceCommand.origin, instanceCommand.sender);
             return { type: 'event', event: { ...event, c: 1 } };
         }
-        const sensorTs = this.sensors.get(state.instance);
-        if (origin === 'device' && sensorTs !== undefined && change.ts - sensorTs <= this.options.externalWindowMs) {
-            return { type: 'event', event: this.event(state, change, 'external', sender) };
+        const sensor = this.sensors.get(state.instance);
+        if (origin === 'device' && sensor && change.ts - sensor.ts <= this.options.externalWindowMs) {
+            return { type: 'event', event: { ...this.event(state, change, 'external', sender), x: sensor.id } };
         }
         return { type: 'event', event: this.event(state, change, origin, sender) };
     }

@@ -29,7 +29,12 @@ export interface RecentAction {
     value: ioBroker.StateValue;
     origin: Origin;
     sender: string;
+    /** Origin "external": name of the sensor that changed just before */
+    trigger?: string;
 }
+
+/** Looks up an observed state by its ID (names and rooms for the recent actions) */
+export type StateLookup = (id: string) => ObservedState | undefined;
 
 const MAX_RECENT = 30;
 
@@ -76,11 +81,11 @@ export class StatsCollector {
         this.stats.confirmations++;
     }
 
-    public addEvent(event: RecordedEvent, state: ObservedState | undefined): void {
+    public addEvent(event: RecordedEvent, lookup: StateLookup): void {
+        const state = lookup(event.id);
         this.stats.events++;
         if (event.o === 'sensor') {
             this.stats.actions.sensor++;
-            this.remember(event, state);
             return;
         }
         if (event.o === 'other') {
@@ -94,11 +99,14 @@ export class StatsCollector {
             const perInstance = (this.stats.byInstance[instance] ??= {});
             perInstance[event.o] = (perInstance[event.o] ?? 0) + 1;
         }
-        this.remember(event, state);
+        this.remember(event, state, lookup);
     }
 
-    /** Recent actions and sensor changes, so that the origin can be checked against what really happened */
-    private remember(event: RecordedEvent, state: ObservedState | undefined): void {
+    /**
+     * Recent actions, so that the origin can be checked against what really happened. Sensors are left out: outdoor
+     * motion sensors report every few seconds and would push the actions out of the list.
+     */
+    private remember(event: RecordedEvent, state: ObservedState | undefined, lookup: StateLookup): void {
         this.recent.unshift({
             t: event.t,
             name: state?.name ?? event.id,
@@ -106,6 +114,7 @@ export class StatsCollector {
             value: event.v,
             origin: event.o,
             sender: event.s,
+            trigger: event.x ? (lookup(event.x)?.name ?? event.x) : undefined,
         });
         if (this.recent.length > MAX_RECENT) {
             this.recent.length = MAX_RECENT;
@@ -129,6 +138,9 @@ export function describe(action: RecentAction): string {
     const d = new Date(action.t);
     const time = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
     const where = action.room ? `${action.room} · ${action.name}` : action.name;
-    const via = action.sender ? `${action.origin}, ${action.sender}` : action.origin;
+    let via = action.sender ? `${action.origin}, ${action.sender}` : action.origin;
+    if (action.trigger) {
+        via += `, after ${action.trigger}`;
+    }
     return `${time} ${where} → ${String(action.value)} (${via})`;
 }

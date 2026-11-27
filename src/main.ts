@@ -32,6 +32,7 @@ class Cortex extends utils.Adapter {
     private rescanTimer?: ioBroker.Interval;
     private lang = 'en';
     private statsDirty = true;
+    private readonly lookup = (id: string): ObservedState | undefined => this.observed.get(id);
 
     public constructor(options: Partial<utils.AdapterOptions> = {}) {
         super({ ...options, name: 'cortex' });
@@ -54,9 +55,10 @@ class Cortex extends utils.Adapter {
             native: {},
         });
         await this.ensureInstanceObjects();
+        // Devices first: the restored statistics need their names
+        await this.rescan();
         await this.restoreToday();
         await this.ensureRecordingSince();
-        await this.rescan();
         await this.log_.cleanup(this.retentionDays());
         await this.context.cleanup(this.retentionDays());
         await this.sampleContext();
@@ -108,7 +110,7 @@ class Cortex extends utils.Adapter {
         const today = dayKey(Date.now());
         this.stats.reset(today);
         for (const event of await this.log_!.readDay(today)) {
-            this.stats.addEvent(event, undefined);
+            this.stats.addEvent(event, this.lookup);
         }
     }
 
@@ -222,7 +224,7 @@ class Cortex extends utils.Adapter {
                 this.stats.reset(today);
             }
             this.log_.append(result.event);
-            this.stats.addEvent(result.event, observed);
+            this.stats.addEvent(result.event, this.lookup);
             this.log.debug(`${id}: ${result.event.o} (${result.event.s || 'no sender'})`);
         }
         this.statsDirty = true;

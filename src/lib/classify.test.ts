@@ -182,7 +182,10 @@ describe('Classifier', () => {
     it('real case: Hue motion sensor switches the hall light on the bridge = external', () => {
         const c = classifier();
         c.classify(hueMotion, change(19_000, true, true, 'system.adapter.hue.0'));
-        assert.equal(origin(c.classify(light, change(19_400, true, true, 'system.adapter.hue.0'))), 'external');
+        const hall = c.classify(light, change(19_400, true, true, 'system.adapter.hue.0'));
+        assert.ok(hall.type === 'event');
+        assert.equal(hall.event.o, 'external');
+        assert.equal(hall.event.x, hueMotion.id);
         assert.equal(origin(c.classify(lamp2, change(20_100, true, true, 'system.adapter.hue.0'))), 'external');
         // Pressing a switch long after walking past the sensor is a person
         assert.equal(origin(c.classify(lamp2, change(40_000, false, true, 'system.adapter.hue.0'))), 'device');

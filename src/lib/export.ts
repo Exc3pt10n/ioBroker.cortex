@@ -42,8 +42,11 @@ export function buildExport(
     }));
     const lines = [JSON.stringify({ type: 'header', ...meta, states })];
     for (const event of events) {
-        const { id, ...rest } = event;
+        const { id, x, ...rest } = event;
         const exported: ExportedEvent = { key: anonymousKey(id, secret), ...rest };
+        if (x) {
+            exported.x = anonymousKey(x, secret);
+        }
         lines.push(JSON.stringify(exported));
     }
     for (const sample of context) {
