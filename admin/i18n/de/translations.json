@@ -1,0 +1,22 @@
+{
+    "Origin of changes": "Herkunft von Änderungen",
+    "User interfaces and voice assistants": "Oberflächen und Sprachassistenten",
+    "Commands from these adapters count as manual actions (comma-separated)": "Befehle dieser Adapter zählen als manuelle Aktionen (durch Komma getrennt)",
+    "Logic adapters": "Logik-Adapter",
+    "Commands from these adapters count as automated (comma-separated)": "Befehle dieser Adapter zählen als automatisch (durch Komma getrennt)",
+    "Confirmation window (seconds)": "Bestätigungsfenster (Sekunden)",
+    "A device report within this time after a command confirms it instead of counting as a new action": "Eine Gerätemeldung innerhalb dieser Zeit nach einem Befehl bestätigt ihn, statt als neue Aktion zu zählen",
+    "Group window (seconds)": "Gruppierungsfenster (Sekunden)",
+    "Changes of one adapter within this time count as one action (scenes, groups)": "Änderungen eines Adapters innerhalb dieser Zeit zählen als eine Aktion (Szenen, Gruppen)",
+    "Observed states": "Beobachtete States",
+    "Ignored adapters": "Ignorierte Adapter",
+    "States of these adapters are never observed (comma-separated)": "States dieser Adapter werden nie beobachtet (durch Komma getrennt)",
+    "Additional states": "Zusätzliche States",
+    "Observe these IDs even without a matching role (prefix, * as wildcard, comma-separated)": "Diese IDs auch ohne passende Rolle beobachten (Präfix, * als Platzhalter, durch Komma getrennt)",
+    "Excluded states": "Ausgeschlossene States",
+    "Never observe these IDs (prefix, * as wildcard, comma-separated)": "Diese IDs nie beobachten (Präfix, * als Platzhalter, durch Komma getrennt)",
+    "Event log": "Ereignis-Log",
+    "Keep events (days)": "Ereignisse aufbewahren (Tage)",
+    "Create anonymous export": "Anonymen Export erstellen",
+    "Saves all recorded events without names, rooms or IDs in the file storage (Admin → Files → cortex.0/export) – to check the detection": "Speichert alle aufgezeichneten Ereignisse ohne Namen, Räume oder IDs im Dateispeicher (Admin → Dateien → cortex.0/export) – zur Prüfung der Erkennung"
+}

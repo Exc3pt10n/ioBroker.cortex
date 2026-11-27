@@ -1,0 +1,22 @@
+{
+    "Origin of changes": "Origine delle modifiche",
+    "User interfaces and voice assistants": "Interfacce e assistenti vocali",
+    "Commands from these adapters count as manual actions (comma-separated)": "I comandi di questi adattatori contano come azioni manuali (separati da virgola)",
+    "Logic adapters": "Adattatori logici",
+    "Commands from these adapters count as automated (comma-separated)": "I comandi di questi adattatori contano come automatici (separati da virgola)",
+    "Confirmation window (seconds)": "Finestra di conferma (secondi)",
+    "A device report within this time after a command confirms it instead of counting as a new action": "Una risposta del dispositivo entro questo tempo dopo un comando lo conferma invece di contare come nuova azione",
+    "Group window (seconds)": "Finestra di raggruppamento (secondi)",
+    "Changes of one adapter within this time count as one action (scenes, groups)": "Le modifiche di un adattatore entro questo tempo contano come un'unica azione (scene, gruppi)",
+    "Observed states": "Stati osservati",
+    "Ignored adapters": "Adattatori ignorati",
+    "States of these adapters are never observed (comma-separated)": "Gli stati di questi adattatori non vengono mai osservati (separati da virgola)",
+    "Additional states": "Stati aggiuntivi",
+    "Observe these IDs even without a matching role (prefix, * as wildcard, comma-separated)": "Osserva questi ID anche senza ruolo corrispondente (prefisso, * come jolly, separati da virgola)",
+    "Excluded states": "Stati esclusi",
+    "Never observe these IDs (prefix, * as wildcard, comma-separated)": "Non osservare mai questi ID (prefisso, * come jolly, separati da virgola)",
+    "Event log": "Registro eventi",
+    "Keep events (days)": "Conserva eventi (giorni)",
+    "Create anonymous export": "Crea esportazione anonima",
+    "Saves all recorded events without names, rooms or IDs in the file storage (Admin → Files → cortex.0/export) – to check the detection": "Salva tutti gli eventi registrati senza nomi, stanze o ID nell'archivio file (Admin → File → cortex.0/export) – per verificare il riconoscimento"
+}

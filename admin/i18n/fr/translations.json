@@ -1,0 +1,22 @@
+{
+    "Origin of changes": "Origine des changements",
+    "User interfaces and voice assistants": "Interfaces et assistants vocaux",
+    "Commands from these adapters count as manual actions (comma-separated)": "Les commandes de ces adaptateurs comptent comme actions manuelles (séparées par des virgules)",
+    "Logic adapters": "Adaptateurs logiques",
+    "Commands from these adapters count as automated (comma-separated)": "Les commandes de ces adaptateurs comptent comme automatiques (séparées par des virgules)",
+    "Confirmation window (seconds)": "Fenêtre de confirmation (secondes)",
+    "A device report within this time after a command confirms it instead of counting as a new action": "Un retour de l'appareil dans ce délai après une commande la confirme au lieu de compter comme nouvelle action",
+    "Group window (seconds)": "Fenêtre de regroupement (secondes)",
+    "Changes of one adapter within this time count as one action (scenes, groups)": "Les changements d'un adaptateur dans ce délai comptent comme une seule action (scènes, groupes)",
+    "Observed states": "États observés",
+    "Ignored adapters": "Adaptateurs ignorés",
+    "States of these adapters are never observed (comma-separated)": "Les états de ces adaptateurs ne sont jamais observés (séparés par des virgules)",
+    "Additional states": "États supplémentaires",
+    "Observe these IDs even without a matching role (prefix, * as wildcard, comma-separated)": "Observer ces ID même sans rôle correspondant (préfixe, * comme joker, séparés par des virgules)",
+    "Excluded states": "États exclus",
+    "Never observe these IDs (prefix, * as wildcard, comma-separated)": "Ne jamais observer ces ID (préfixe, * comme joker, séparés par des virgules)",
+    "Event log": "Journal des événements",
+    "Keep events (days)": "Conserver les événements (jours)",
+    "Create anonymous export": "Créer un export anonyme",
+    "Saves all recorded events without names, rooms or IDs in the file storage (Admin → Files → cortex.0/export) – to check the detection": "Enregistre tous les événements sans noms, pièces ni ID dans le stockage de fichiers (Admin → Fichiers → cortex.0/export) – pour vérifier la détection"
+}

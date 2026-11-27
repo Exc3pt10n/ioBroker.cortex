@@ -1,0 +1,22 @@
+{
+    "Origin of changes": "Origin of changes",
+    "User interfaces and voice assistants": "User interfaces and voice assistants",
+    "Commands from these adapters count as manual actions (comma-separated)": "Commands from these adapters count as manual actions (comma-separated)",
+    "Logic adapters": "Logic adapters",
+    "Commands from these adapters count as automated (comma-separated)": "Commands from these adapters count as automated (comma-separated)",
+    "Confirmation window (seconds)": "Confirmation window (seconds)",
+    "A device report within this time after a command confirms it instead of counting as a new action": "A device report within this time after a command confirms it instead of counting as a new action",
+    "Group window (seconds)": "Group window (seconds)",
+    "Changes of one adapter within this time count as one action (scenes, groups)": "Changes of one adapter within this time count as one action (scenes, groups)",
+    "Observed states": "Observed states",
+    "Ignored adapters": "Ignored adapters",
+    "States of these adapters are never observed (comma-separated)": "States of these adapters are never observed (comma-separated)",
+    "Additional states": "Additional states",
+    "Observe these IDs even without a matching role (prefix, * as wildcard, comma-separated)": "Observe these IDs even without a matching role (prefix, * as wildcard, comma-separated)",
+    "Excluded states": "Excluded states",
+    "Never observe these IDs (prefix, * as wildcard, comma-separated)": "Never observe these IDs (prefix, * as wildcard, comma-separated)",
+    "Event log": "Event log",
+    "Keep events (days)": "Keep events (days)",
+    "Create anonymous export": "Create anonymous export",
+    "Saves all recorded events without names, rooms or IDs in the file storage (Admin → Files → cortex.0/export) – to check the detection": "Saves all recorded events without names, rooms or IDs in the file storage (Admin → Files → cortex.0/export) – to check the detection"
+}

@@ -1,0 +1,22 @@
+{
+    "Origin of changes": "Origem das alterações",
+    "User interfaces and voice assistants": "Interfaces e assistentes de voz",
+    "Commands from these adapters count as manual actions (comma-separated)": "Comandos destes adaptadores contam como ações manuais (separados por vírgula)",
+    "Logic adapters": "Adaptadores de lógica",
+    "Commands from these adapters count as automated (comma-separated)": "Comandos destes adaptadores contam como automáticos (separados por vírgula)",
+    "Confirmation window (seconds)": "Janela de confirmação (segundos)",
+    "A device report within this time after a command confirms it instead of counting as a new action": "Uma resposta do dispositivo dentro deste tempo após um comando confirma-o em vez de contar como nova ação",
+    "Group window (seconds)": "Janela de agrupamento (segundos)",
+    "Changes of one adapter within this time count as one action (scenes, groups)": "Alterações de um adaptador dentro deste tempo contam como uma ação (cenas, grupos)",
+    "Observed states": "Estados observados",
+    "Ignored adapters": "Adaptadores ignorados",
+    "States of these adapters are never observed (comma-separated)": "Os estados destes adaptadores nunca são observados (separados por vírgula)",
+    "Additional states": "Estados adicionais",
+    "Observe these IDs even without a matching role (prefix, * as wildcard, comma-separated)": "Observar estes IDs mesmo sem função correspondente (prefixo, * como curinga, separados por vírgula)",
+    "Excluded states": "Estados excluídos",
+    "Never observe these IDs (prefix, * as wildcard, comma-separated)": "Nunca observar estes IDs (prefixo, * como curinga, separados por vírgula)",
+    "Event log": "Registo de eventos",
+    "Keep events (days)": "Manter eventos (dias)",
+    "Create anonymous export": "Criar exportação anónima",
+    "Saves all recorded events without names, rooms or IDs in the file storage (Admin → Files → cortex.0/export) – to check the detection": "Guarda todos os eventos registados sem nomes, divisões ou IDs no armazenamento de ficheiros (Admin → Ficheiros → cortex.0/export) – para verificar a deteção"
+}

@@ -1,0 +1,22 @@
+{
+    "Origin of changes": "Походження змін",
+    "User interfaces and voice assistants": "Інтерфейси та голосові асистенти",
+    "Commands from these adapters count as manual actions (comma-separated)": "Команди цих адаптерів вважаються ручними діями (через кому)",
+    "Logic adapters": "Логічні адаптери",
+    "Commands from these adapters count as automated (comma-separated)": "Команди цих адаптерів вважаються автоматичними (через кому)",
+    "Confirmation window (seconds)": "Вікно підтвердження (секунди)",
+    "A device report within this time after a command confirms it instead of counting as a new action": "Повідомлення пристрою протягом цього часу після команди підтверджує її, а не вважається новою дією",
+    "Group window (seconds)": "Вікно групування (секунди)",
+    "Changes of one adapter within this time count as one action (scenes, groups)": "Зміни одного адаптера протягом цього часу вважаються однією дією (сцени, групи)",
+    "Observed states": "Спостережувані стани",
+    "Ignored adapters": "Ігноровані адаптери",
+    "States of these adapters are never observed (comma-separated)": "Стани цих адаптерів ніколи не спостерігаються (через кому)",
+    "Additional states": "Додаткові стани",
+    "Observe these IDs even without a matching role (prefix, * as wildcard, comma-separated)": "Спостерігати ці ID навіть без відповідної ролі (префікс, * як шаблон, через кому)",
+    "Excluded states": "Виключені стани",
+    "Never observe these IDs (prefix, * as wildcard, comma-separated)": "Ніколи не спостерігати ці ID (префікс, * як шаблон, через кому)",
+    "Event log": "Журнал подій",
+    "Keep events (days)": "Зберігати події (дні)",
+    "Create anonymous export": "Створити анонімний експорт",
+    "Saves all recorded events without names, rooms or IDs in the file storage (Admin → Files → cortex.0/export) – to check the detection": "Зберігає всі записані події без назв, кімнат та ID у файловому сховищі (Admin → Файли → cortex.0/export) – для перевірки розпізнавання"
+}

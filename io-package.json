@@ -1,0 +1,356 @@
+{
+    "common": {
+        "name": "cortex",
+        "version": "0.0.1",
+        "news": {
+            "0.0.1": {
+                "en": "First version: recorder. Observes switches, lights, dimmers, blinds and motion/door/window sensors, classifies every change as manual, automated or device and keeps a local event log; statistics as states; anonymous export",
+                "de": "Erste Version: Rekorder. Beobachtet Schalter, Lichter, Dimmer, Rollläden sowie Bewegungs-, Tür- und Fenstersensoren, stuft jede Änderung als manuell, automatisch oder Gerät ein und führt ein lokales Ereignis-Log; Statistik als States; anonymer Export",
+                "ru": "Первая версия: регистратор. Наблюдает за выключателями, светом, диммерами, жалюзи и датчиками движения, дверей и окон, классифицирует каждое изменение как ручное, автоматическое или от устройства и ведёт локальный журнал событий; статистика в виде состояний; анонимный экспорт",
+                "pt": "Primeira versão: gravador. Observa interruptores, luzes, reguladores, estores e sensores de movimento, portas e janelas, classifica cada alteração como manual, automática ou do dispositivo e mantém um registo local de eventos; estatísticas como estados; exportação anónima",
+                "nl": "Eerste versie: recorder. Observeert schakelaars, lampen, dimmers, rolluiken en bewegings-, deur- en raamsensoren, classificeert elke wijziging als handmatig, automatisch of apparaat en houdt een lokaal gebeurtenislogboek bij; statistieken als states; anonieme export",
+                "fr": "Première version : enregistreur. Observe interrupteurs, lumières, variateurs, volets et capteurs de mouvement, de porte et de fenêtre, classe chaque changement comme manuel, automatique ou appareil et tient un journal local des événements ; statistiques sous forme d'états ; export anonyme",
+                "it": "Prima versione: registratore. Osserva interruttori, luci, dimmer, tapparelle e sensori di movimento, porte e finestre, classifica ogni modifica come manuale, automatica o dispositivo e tiene un registro locale degli eventi; statistiche come stati; esportazione anonima",
+                "es": "Primera versión: grabador. Observa interruptores, luces, reguladores, persianas y sensores de movimiento, puertas y ventanas, clasifica cada cambio como manual, automático o del dispositivo y mantiene un registro local de eventos; estadísticas como estados; exportación anónima",
+                "pl": "Pierwsza wersja: rejestrator. Obserwuje przełączniki, światła, ściemniacze, rolety oraz czujniki ruchu, drzwi i okien, klasyfikuje każdą zmianę jako ręczną, automatyczną lub z urządzenia i prowadzi lokalny dziennik zdarzeń; statystyki jako stany; anonimowy eksport",
+                "uk": "Перша версія: реєстратор. Спостерігає за вимикачами, світлом, диммерами, жалюзі та датчиками руху, дверей і вікон, класифікує кожну зміну як ручну, автоматичну або від пристрою та веде локальний журнал подій; статистика у вигляді станів; анонімний експорт",
+                "zh-cn": "首个版本：记录器。观察开关、灯光、调光器、百叶窗以及运动、门和窗传感器，将每次变化归类为手动、自动或设备，并保存本地事件日志；统计数据以状态形式提供；匿名导出"
+            }
+        },
+        "titleLang": {
+            "en": "Cortex",
+            "de": "Cortex",
+            "ru": "Cortex",
+            "pt": "Cortex",
+            "nl": "Cortex",
+            "fr": "Cortex",
+            "it": "Cortex",
+            "es": "Cortex",
+            "pl": "Cortex",
+            "uk": "Cortex",
+            "zh-cn": "Cortex"
+        },
+        "desc": {
+            "en": "Learns from manual actions and suggests automations",
+            "de": "Lernt aus manuellen Aktionen und schlägt Automatisierungen vor",
+            "ru": "Учится на ручных действиях и предлагает автоматизации",
+            "pt": "Aprende com ações manuais e sugere automações",
+            "nl": "Leert van handmatige acties en stelt automatiseringen voor",
+            "fr": "Apprend des actions manuelles et propose des automatisations",
+            "it": "Impara dalle azioni manuali e suggerisce automazioni",
+            "es": "Aprende de las acciones manuales y sugiere automatizaciones",
+            "pl": "Uczy się z ręcznych działań i proponuje automatyzacje",
+            "uk": "Навчається на ручних діях і пропонує автоматизації",
+            "zh-cn": "从手动操作中学习并建议自动化"
+        },
+        "authors": [
+            "Exc3pt10n <kontakt@jansesoft.de>"
+        ],
+        "keywords": [
+            "automation",
+            "suggestions",
+            "habits",
+            "patterns",
+            "learning"
+        ],
+        "licenseInformation": {
+            "type": "free",
+            "license": "MIT"
+        },
+        "platform": "Javascript/Node.js",
+        "icon": "cortex.svg",
+        "enabled": true,
+        "extIcon": "https://raw.githubusercontent.com/Exc3pt10n/ioBroker.cortex/main/admin/cortex.svg",
+        "readme": "https://github.com/Exc3pt10n/ioBroker.cortex/blob/main/README.md",
+        "loglevel": "info",
+        "tier": 3,
+        "mode": "daemon",
+        "type": "logic",
+        "compact": true,
+        "connectionType": "local",
+        "dataSource": "push",
+        "adminUI": {
+            "config": "json"
+        },
+        "messagebox": true,
+        "dependencies": [
+            {
+                "js-controller": ">=6.0.11"
+            }
+        ],
+        "globalDependencies": [
+            {
+                "admin": ">=7.6.20"
+            }
+        ],
+        "nogit": true
+    },
+    "native": {
+        "uiAdapters": "admin,web,vis,vis-2,smartvis,iot,cloud,alexa2,telegram,yahka,matter,lovelace,material,jarvis",
+        "scriptAdapters": "javascript,scenes,shuttercontrol,node-red,lightcontrol,schedule-switcher,heatingcontrol,timeswitch",
+        "ignoreAdapters": "alias,javascript,scenes,shuttercontrol,lightcontrol,admin,discovery,backitup,history,influxdb,sql",
+        "include": "",
+        "exclude": "",
+        "confirmWindow": 10,
+        "burstWindow": 2,
+        "retentionDays": 60
+    },
+    "objects": [],
+    "instanceObjects": [
+        {
+            "_id": "info",
+            "type": "channel",
+            "common": {
+                "name": {
+                    "en": "Information",
+                    "de": "Information"
+                }
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.status",
+            "type": "state",
+            "common": {
+                "name": {
+                    "en": "Status",
+                    "de": "Status"
+                },
+                "type": "string",
+                "role": "text",
+                "read": true,
+                "write": false
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.recordingSince",
+            "type": "state",
+            "common": {
+                "name": {
+                    "en": "Recording since",
+                    "de": "Aufzeichnung seit"
+                },
+                "type": "number",
+                "role": "date",
+                "read": true,
+                "write": false
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.recordingDays",
+            "type": "state",
+            "common": {
+                "name": {
+                    "en": "Days recorded",
+                    "de": "Aufgezeichnete Tage"
+                },
+                "type": "number",
+                "role": "value",
+                "read": true,
+                "write": false,
+                "unit": "d",
+                "def": 0
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.observedActions",
+            "type": "state",
+            "common": {
+                "name": {
+                    "en": "Observed actions",
+                    "de": "Beobachtete Aktionen"
+                },
+                "type": "number",
+                "role": "value",
+                "read": true,
+                "write": false,
+                "def": 0
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.observedTriggers",
+            "type": "state",
+            "common": {
+                "name": {
+                    "en": "Observed triggers",
+                    "de": "Beobachtete Auslöser"
+                },
+                "type": "number",
+                "role": "value",
+                "read": true,
+                "write": false,
+                "def": 0
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.observedStates",
+            "type": "state",
+            "common": {
+                "name": {
+                    "en": "Observed states (JSON)",
+                    "de": "Beobachtete States (JSON)"
+                },
+                "type": "string",
+                "role": "json",
+                "read": true,
+                "write": false
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.exportSecret",
+            "type": "state",
+            "common": {
+                "name": {
+                    "en": "Secret for anonymous IDs in the export",
+                    "de": "Geheimnis für anonyme IDs im Export"
+                },
+                "type": "string",
+                "role": "text",
+                "read": true,
+                "write": false
+            },
+            "native": {}
+        },
+        {
+            "_id": "stats",
+            "type": "channel",
+            "common": {
+                "name": {
+                    "en": "Statistics (today)",
+                    "de": "Statistik (heute)"
+                }
+            },
+            "native": {}
+        },
+        {
+            "_id": "stats.manualActions",
+            "type": "state",
+            "common": {
+                "name": {
+                    "en": "Manual actions today",
+                    "de": "Manuelle Aktionen heute"
+                },
+                "type": "number",
+                "role": "value",
+                "read": true,
+                "write": false,
+                "def": 0
+            },
+            "native": {}
+        },
+        {
+            "_id": "stats.automatedActions",
+            "type": "state",
+            "common": {
+                "name": {
+                    "en": "Automated actions today",
+                    "de": "Automatische Aktionen heute"
+                },
+                "type": "number",
+                "role": "value",
+                "read": true,
+                "write": false,
+                "def": 0
+            },
+            "native": {}
+        },
+        {
+            "_id": "stats.unknownActions",
+            "type": "state",
+            "common": {
+                "name": {
+                    "en": "Actions with unknown origin today",
+                    "de": "Aktionen unbekannter Herkunft heute"
+                },
+                "type": "number",
+                "role": "value",
+                "read": true,
+                "write": false,
+                "def": 0
+            },
+            "native": {}
+        },
+        {
+            "_id": "stats.manualShare",
+            "type": "state",
+            "common": {
+                "name": {
+                    "en": "Share of manual actions",
+                    "de": "Anteil manueller Aktionen"
+                },
+                "type": "number",
+                "role": "value",
+                "read": true,
+                "write": false,
+                "unit": "%"
+            },
+            "native": {}
+        },
+        {
+            "_id": "stats.unknownSenders",
+            "type": "state",
+            "common": {
+                "name": {
+                    "en": "Adapters with unknown origin",
+                    "de": "Adapter unbekannter Herkunft"
+                },
+                "type": "string",
+                "role": "text",
+                "read": true,
+                "write": false
+            },
+            "native": {}
+        },
+        {
+            "_id": "stats.today",
+            "type": "state",
+            "common": {
+                "name": {
+                    "en": "Statistics today (JSON)",
+                    "de": "Statistik heute (JSON)"
+                },
+                "type": "string",
+                "role": "json",
+                "read": true,
+                "write": false
+            },
+            "native": {}
+        },
+        {
+            "_id": "stats.recent",
+            "type": "state",
+            "common": {
+                "name": {
+                    "en": "Recent actions (JSON)",
+                    "de": "Letzte Aktionen (JSON)"
+                },
+                "type": "string",
+                "role": "json",
+                "read": true,
+                "write": false
+            },
+            "native": {}
+        },
+        {
+            "_id": "stats.recentText",
+            "type": "state",
+            "common": {
+                "name": {
+                    "en": "Recent actions",
+                    "de": "Letzte Aktionen"
+                },
+                "type": "string",
+                "role": "text",
+                "read": true,
+                "write": false
+            },
+            "native": {}
+        }
+    ]
+}

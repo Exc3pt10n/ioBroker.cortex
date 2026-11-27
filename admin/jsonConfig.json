@@ -1,0 +1,135 @@
+{
+    "i18n": true,
+    "type": "panel",
+    "items": {
+        "_origin": {
+            "type": "header",
+            "text": "Origin of changes",
+            "size": 3
+        },
+        "uiAdapters": {
+            "type": "text",
+            "label": "User interfaces and voice assistants",
+            "help": "Commands from these adapters count as manual actions (comma-separated)",
+            "xs": 12,
+            "sm": 12,
+            "md": 12,
+            "lg": 8,
+            "xl": 8
+        },
+        "scriptAdapters": {
+            "type": "text",
+            "label": "Logic adapters",
+            "help": "Commands from these adapters count as automated (comma-separated)",
+            "newLine": true,
+            "xs": 12,
+            "sm": 12,
+            "md": 12,
+            "lg": 8,
+            "xl": 8
+        },
+        "confirmWindow": {
+            "type": "number",
+            "label": "Confirmation window (seconds)",
+            "help": "A device report within this time after a command confirms it instead of counting as a new action",
+            "min": 1,
+            "max": 120,
+            "newLine": true,
+            "xs": 12,
+            "sm": 12,
+            "md": 6,
+            "lg": 4,
+            "xl": 4
+        },
+        "burstWindow": {
+            "type": "number",
+            "label": "Group window (seconds)",
+            "help": "Changes of one adapter within this time count as one action (scenes, groups)",
+            "min": 0,
+            "max": 30,
+            "step": 0.5,
+            "xs": 12,
+            "sm": 12,
+            "md": 6,
+            "lg": 4,
+            "xl": 4
+        },
+        "_states": {
+            "type": "header",
+            "text": "Observed states",
+            "size": 3,
+            "newLine": true
+        },
+        "ignoreAdapters": {
+            "type": "text",
+            "label": "Ignored adapters",
+            "help": "States of these adapters are never observed (comma-separated)",
+            "xs": 12,
+            "sm": 12,
+            "md": 12,
+            "lg": 8,
+            "xl": 8
+        },
+        "include": {
+            "type": "text",
+            "label": "Additional states",
+            "help": "Observe these IDs even without a matching role (prefix, * as wildcard, comma-separated)",
+            "newLine": true,
+            "xs": 12,
+            "sm": 12,
+            "md": 12,
+            "lg": 8,
+            "xl": 8
+        },
+        "exclude": {
+            "type": "text",
+            "label": "Excluded states",
+            "help": "Never observe these IDs (prefix, * as wildcard, comma-separated)",
+            "newLine": true,
+            "xs": 12,
+            "sm": 12,
+            "md": 12,
+            "lg": 8,
+            "xl": 8
+        },
+        "_log": {
+            "type": "header",
+            "text": "Event log",
+            "size": 3,
+            "newLine": true
+        },
+        "retentionDays": {
+            "type": "number",
+            "label": "Keep events (days)",
+            "min": 7,
+            "max": 365,
+            "xs": 12,
+            "sm": 12,
+            "md": 6,
+            "lg": 4,
+            "xl": 4
+        },
+        "_export": {
+            "type": "sendTo",
+            "command": "export",
+            "label": "Create anonymous export",
+            "showProcess": true,
+            "newLine": true,
+            "xs": 12,
+            "sm": 12,
+            "md": 6,
+            "lg": 4,
+            "xl": 4
+        },
+        "_exportHelp": {
+            "type": "staticText",
+            "text": "Saves all recorded events without names, rooms or IDs in the file storage (Admin → Files → cortex.0/export) – to check the detection",
+            "newLine": true,
+            "xs": 12,
+            "sm": 12,
+            "md": 12,
+            "lg": 8,
+            "xl": 8
+        }
+    }
+}

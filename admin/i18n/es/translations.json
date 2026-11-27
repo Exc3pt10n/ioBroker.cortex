@@ -1,0 +1,22 @@
+{
+    "Origin of changes": "Origen de los cambios",
+    "User interfaces and voice assistants": "Interfaces y asistentes de voz",
+    "Commands from these adapters count as manual actions (comma-separated)": "Los comandos de estos adaptadores cuentan como acciones manuales (separados por comas)",
+    "Logic adapters": "Adaptadores lógicos",
+    "Commands from these adapters count as automated (comma-separated)": "Los comandos de estos adaptadores cuentan como automáticos (separados por comas)",
+    "Confirmation window (seconds)": "Ventana de confirmación (segundos)",
+    "A device report within this time after a command confirms it instead of counting as a new action": "Una respuesta del dispositivo dentro de este tiempo tras un comando lo confirma en lugar de contar como nueva acción",
+    "Group window (seconds)": "Ventana de agrupación (segundos)",
+    "Changes of one adapter within this time count as one action (scenes, groups)": "Los cambios de un adaptador dentro de este tiempo cuentan como una acción (escenas, grupos)",
+    "Observed states": "Estados observados",
+    "Ignored adapters": "Adaptadores ignorados",
+    "States of these adapters are never observed (comma-separated)": "Los estados de estos adaptadores nunca se observan (separados por comas)",
+    "Additional states": "Estados adicionales",
+    "Observe these IDs even without a matching role (prefix, * as wildcard, comma-separated)": "Observar estos ID incluso sin función coincidente (prefijo, * como comodín, separados por comas)",
+    "Excluded states": "Estados excluidos",
+    "Never observe these IDs (prefix, * as wildcard, comma-separated)": "No observar nunca estos ID (prefijo, * como comodín, separados por comas)",
+    "Event log": "Registro de eventos",
+    "Keep events (days)": "Conservar eventos (días)",
+    "Create anonymous export": "Crear exportación anónima",
+    "Saves all recorded events without names, rooms or IDs in the file storage (Admin → Files → cortex.0/export) – to check the detection": "Guarda todos los eventos registrados sin nombres, habitaciones ni ID en el almacenamiento de archivos (Admin → Archivos → cortex.0/export) – para comprobar la detección"
+}

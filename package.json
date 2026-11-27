@@ -1,0 +1,54 @@
+{
+  "name": "iobroker.cortex",
+  "version": "0.0.1",
+  "description": "Learns from manual actions in your smart home and suggests the automations that save the most effort",
+  "author": {
+    "name": "Exc3pt10n",
+    "email": "kontakt@jansesoft.de"
+  },
+  "homepage": "https://github.com/Exc3pt10n/ioBroker.cortex",
+  "license": "MIT",
+  "keywords": [
+    "ioBroker",
+    "automation",
+    "suggestions",
+    "habits",
+    "patterns",
+    "smart home"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Exc3pt10n/ioBroker.cortex.git"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "main": "build/main.js",
+  "files": [
+    "admin/",
+    "build/",
+    "io-package.json",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "watch": "tsc -p tsconfig.build.json --watch",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "test:unit": "mocha \"src/**/*.test.ts\"",
+    "test:package": "mocha test/package.js --exit",
+    "test:integration": "mocha test/integration.js --exit",
+    "test": "npm run test:unit && npm run test:package"
+  },
+  "dependencies": {
+    "@iobroker/adapter-core": "^3.4.3"
+  },
+  "devDependencies": {
+    "@iobroker/eslint-config": "^2.3.4",
+    "@iobroker/testing": "^6.3.3",
+    "@types/iobroker": "npm:@iobroker/types@^7.0.7",
+    "@types/node": "^22.15.0",
+    "tsx": "^4.19.3",
+    "typescript": "~5.8.3"
+  }
+}

@@ -1,0 +1,22 @@
+{
+    "Origin of changes": "Pochodzenie zmian",
+    "User interfaces and voice assistants": "Interfejsy i asystenci głosowi",
+    "Commands from these adapters count as manual actions (comma-separated)": "Polecenia tych adapterów liczą się jako działania ręczne (oddzielone przecinkami)",
+    "Logic adapters": "Adaptery logiki",
+    "Commands from these adapters count as automated (comma-separated)": "Polecenia tych adapterów liczą się jako automatyczne (oddzielone przecinkami)",
+    "Confirmation window (seconds)": "Okno potwierdzenia (sekundy)",
+    "A device report within this time after a command confirms it instead of counting as a new action": "Odpowiedź urządzenia w tym czasie po poleceniu potwierdza je zamiast liczyć się jako nowe działanie",
+    "Group window (seconds)": "Okno grupowania (sekundy)",
+    "Changes of one adapter within this time count as one action (scenes, groups)": "Zmiany jednego adaptera w tym czasie liczą się jako jedno działanie (sceny, grupy)",
+    "Observed states": "Obserwowane stany",
+    "Ignored adapters": "Ignorowane adaptery",
+    "States of these adapters are never observed (comma-separated)": "Stany tych adapterów nigdy nie są obserwowane (oddzielone przecinkami)",
+    "Additional states": "Dodatkowe stany",
+    "Observe these IDs even without a matching role (prefix, * as wildcard, comma-separated)": "Obserwuj te ID nawet bez pasującej roli (prefiks, * jako symbol wieloznaczny, oddzielone przecinkami)",
+    "Excluded states": "Wykluczone stany",
+    "Never observe these IDs (prefix, * as wildcard, comma-separated)": "Nigdy nie obserwuj tych ID (prefiks, * jako symbol wieloznaczny, oddzielone przecinkami)",
+    "Event log": "Dziennik zdarzeń",
+    "Keep events (days)": "Przechowuj zdarzenia (dni)",
+    "Create anonymous export": "Utwórz anonimowy eksport",
+    "Saves all recorded events without names, rooms or IDs in the file storage (Admin → Files → cortex.0/export) – to check the detection": "Zapisuje wszystkie zarejestrowane zdarzenia bez nazw, pomieszczeń i ID w magazynie plików (Admin → Pliki → cortex.0/export) – do sprawdzenia rozpoznawania"
+}

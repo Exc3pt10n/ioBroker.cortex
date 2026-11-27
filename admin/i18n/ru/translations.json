@@ -1,0 +1,22 @@
+{
+    "Origin of changes": "Происхождение изменений",
+    "User interfaces and voice assistants": "Интерфейсы и голосовые ассистенты",
+    "Commands from these adapters count as manual actions (comma-separated)": "Команды этих адаптеров считаются ручными действиями (через запятую)",
+    "Logic adapters": "Логические адаптеры",
+    "Commands from these adapters count as automated (comma-separated)": "Команды этих адаптеров считаются автоматическими (через запятую)",
+    "Confirmation window (seconds)": "Окно подтверждения (секунды)",
+    "A device report within this time after a command confirms it instead of counting as a new action": "Сообщение устройства в течение этого времени после команды подтверждает её, а не считается новым действием",
+    "Group window (seconds)": "Окно группировки (секунды)",
+    "Changes of one adapter within this time count as one action (scenes, groups)": "Изменения одного адаптера в течение этого времени считаются одним действием (сцены, группы)",
+    "Observed states": "Наблюдаемые состояния",
+    "Ignored adapters": "Игнорируемые адаптеры",
+    "States of these adapters are never observed (comma-separated)": "Состояния этих адаптеров никогда не наблюдаются (через запятую)",
+    "Additional states": "Дополнительные состояния",
+    "Observe these IDs even without a matching role (prefix, * as wildcard, comma-separated)": "Наблюдать эти ID даже без подходящей роли (префикс, * как подстановка, через запятую)",
+    "Excluded states": "Исключённые состояния",
+    "Never observe these IDs (prefix, * as wildcard, comma-separated)": "Никогда не наблюдать эти ID (префикс, * как подстановка, через запятую)",
+    "Event log": "Журнал событий",
+    "Keep events (days)": "Хранить события (дни)",
+    "Create anonymous export": "Создать анонимный экспорт",
+    "Saves all recorded events without names, rooms or IDs in the file storage (Admin → Files → cortex.0/export) – to check the detection": "Сохраняет все записанные события без имён, комнат и ID в файловое хранилище (Admin → Файлы → cortex.0/export) – для проверки распознавания"
+}

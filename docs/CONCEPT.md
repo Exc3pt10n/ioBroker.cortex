@@ -41,7 +41,8 @@ Leitfragen des Benutzers:
 | Thema | Entscheidung |
 |---|---|
 | Unabhängigkeit | Cortex läuft eigenständig auf jedem ioBroker-System; setzt weder SmartVis noch einen History-Adapter voraus |
-| Erkennung | Eigene Erkennung in Cortex (`@iobroker/type-detector`, `common.role`, `enum.rooms`); kein gemeinsames Paket mit SmartVis |
+| Generisch | Keine Sonderlogik für einzelne Adapter oder Installationen. Probleme wie Szenen/Gruppen oder Automationen außerhalb von ioBroker werden allgemein gelöst (Standard-Rollen, `ack`/`from`, Zeitverhalten, Einstellungen) |
+| Erkennung | Eigene Erkennung in Cortex über Standard-Rollen (`common.role`) und `enum.rooms`; kein gemeinsames Paket mit SmartVis. `@iobroker/type-detector` nur, falls Rollen in der Praxis nicht reichen |
 | Hardware | Raspberry Pi bis Intel NUC; keine hardwareabhängigen Modi (die Last ist klein, siehe Datenhaltung) |
 | Altdaten | Kein Import aus history/influxdb/sql; Cortex sammelt selbst |
 | Technik | TypeScript, Node ≥ 22; Werkzeuge, Workflows und Konventionen wie ioBroker.smartvis (zentraler Workflow, Verteilung über npm) |
@@ -58,14 +59,24 @@ Einstufung jedes Ereignisses beim Eingang:
 
 | Signal | Einstufung |
 |---|---|
-| `ack=false`, `from=system.adapter.javascript.*` / Szenen- und Logik-Adapter | `automated` |
-| `ack=false`, `from=system.adapter.{web,admin,smartvis,alexa2,…}.*` oder `from=system.user.*` | `manual` |
-| `ack=true` vom Geräte-Adapter **ohne** vorangegangenen Befehl (Zeitfenster wenige Sekunden) | `manual` (physischer Schalter) |
+| `ack=false`, `from=system.adapter.javascript.*` / Szenen- und Logik-Adapter | `script` (automatisch) |
+| `ack=false`, `from=system.adapter.{web,admin,smartvis,alexa2,…}.*` oder `from=system.user.*` | `ui` (manuell) |
+| `ack=true` vom Geräte-Adapter **ohne** vorangegangenen Befehl | `device` – physischer Schalter, Hersteller-App **oder** Automation außerhalb von ioBroker (Hue-Routine, CCU-Programm, Shelly-Zeitplan); zählt vorläufig als manuell |
 | `ack=true` vom Geräte-Adapter **nach** einem Befehl | Bestätigung – kein eigenes Ereignis, erbt die Einstufung des Befehls |
 | Sensor-Rollen (`sensor.motion`, `sensor.door`, `sensor.window`, …) | `sensor` |
+| Befehl eines Adapters, der in keiner Liste steht | `other` – wird in `stats.unknownSenders` angezeigt, damit der Benutzer ihn zuordnen kann |
 
-🔬 Nicht jeder Adapter setzt `from` zuverlässig (z. B. Polling-Adapter). Die Zuordnung
-„Quell-Adapter → Einstufung“ ist im Admin überschreibbar.
+Mehrere Änderungen eines Adapters innerhalb kurzer Zeit (Standard 2 s) zählen als **eine** Aktion – so werden
+Szenen und Gruppen allgemein behandelt, ohne Adapter-Sonderlogik.
+
+🔬 Offene Risiken, die der Rekorder klären soll:
+
+- Nicht jeder Adapter setzt `from` zuverlässig (z. B. Polling-Adapter).
+- `device` vermischt Menschen am Gerät mit Automationen außerhalb von ioBroker. Idee für 0.0.x: Automationen
+  sind zeitlich präzise (täglich 07:00:00 ± wenige Sekunden), Menschen streuen.
+
+Die Zuordnung „Adapter → Einstufung“ ist im Admin überschreibbar. Ein **anonymer Export** (ohne Namen, Räume
+und Objekt-IDs) erlaubt, die Einstufung auch mit Daten anderer Installationen zu prüfen.
 
 ## Bausteine v0.1
 

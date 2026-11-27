@@ -1,0 +1,22 @@
+{
+    "Origin of changes": "Herkomst van wijzigingen",
+    "User interfaces and voice assistants": "Gebruikersinterfaces en spraakassistenten",
+    "Commands from these adapters count as manual actions (comma-separated)": "Opdrachten van deze adapters tellen als handmatige acties (kommagescheiden)",
+    "Logic adapters": "Logica-adapters",
+    "Commands from these adapters count as automated (comma-separated)": "Opdrachten van deze adapters tellen als automatisch (kommagescheiden)",
+    "Confirmation window (seconds)": "Bevestigingsvenster (seconden)",
+    "A device report within this time after a command confirms it instead of counting as a new action": "Een apparaatmelding binnen deze tijd na een opdracht bevestigt die, in plaats van als nieuwe actie te tellen",
+    "Group window (seconds)": "Groeperingsvenster (seconden)",
+    "Changes of one adapter within this time count as one action (scenes, groups)": "Wijzigingen van één adapter binnen deze tijd tellen als één actie (scènes, groepen)",
+    "Observed states": "Geobserveerde states",
+    "Ignored adapters": "Genegeerde adapters",
+    "States of these adapters are never observed (comma-separated)": "States van deze adapters worden nooit geobserveerd (kommagescheiden)",
+    "Additional states": "Extra states",
+    "Observe these IDs even without a matching role (prefix, * as wildcard, comma-separated)": "Deze ID's ook zonder passende rol observeren (prefix, * als jokerteken, kommagescheiden)",
+    "Excluded states": "Uitgesloten states",
+    "Never observe these IDs (prefix, * as wildcard, comma-separated)": "Deze ID's nooit observeren (prefix, * als jokerteken, kommagescheiden)",
+    "Event log": "Gebeurtenislogboek",
+    "Keep events (days)": "Gebeurtenissen bewaren (dagen)",
+    "Create anonymous export": "Anonieme export maken",
+    "Saves all recorded events without names, rooms or IDs in the file storage (Admin → Files → cortex.0/export) – to check the detection": "Slaat alle opgenomen gebeurtenissen zonder namen, ruimtes of ID's op in de bestandsopslag (Admin → Bestanden → cortex.0/export) – om de herkenning te controleren"
+}
