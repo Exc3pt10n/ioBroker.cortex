@@ -22,7 +22,16 @@
     "Reaction window for automations outside ioBroker (seconds)": "Reactievenster voor automatiseringen buiten ioBroker (seconden)",
     "A device that changes this soon after a sensor of the same adapter instance was switched by its bridge or central unit (e.g. Hue motion sensor, CCU program), not by a person": "Een apparaat dat zo kort na een sensor van dezelfde adapterinstantie verandert, is geschakeld door zijn bridge of centrale (bijv. Hue-bewegingsmelder, CCU-programma), niet door een persoon",
     "Context values": "Omgevingswaarden",
-    "Optional: recorded every 15 minutes, so that Cortex can later recognise actions that depend on the weather (e.g. blinds down on hot days). The position of the sun is calculated from the location of the system.": "Optioneel: elke 15 minuten opgenomen, zodat Cortex later acties kan herkennen die van het weer afhangen (bijv. rolluiken omlaag op warme dagen). De zonnestand wordt berekend uit de locatie van het systeem.",
-    "Outdoor temperature": "Buitentemperatuur",
-    "Outdoor brightness": "Buitenhelderheid"
+    "Recorded every 15 minutes, so that Cortex can later recognise actions that depend on the weather or the room climate (e.g. blinds down on hot days). Season, sun position and weekday are calculated from the time and location and need no sensor.": "Worden elke 15 minuten opgenomen, zodat Cortex later acties kan herkennen die van het weer of het binnenklimaat afhangen (bijv. rolluiken omlaag op warme dagen). Seizoen, zonnestand en weekdag worden berekend uit tijd en locatie en hebben geen sensor nodig.",
+    "Record room temperature and humidity automatically": "Kamertemperatuur en luchtvochtigheid automatisch opnemen",
+    "All temperature and humidity sensors that are assigned to a room": "Alle temperatuur- en vochtigheidssensoren die aan een ruimte zijn toegewezen",
+    "Outdoor values": "Buitenwaarden",
+    "State": "State",
+    "Kind": "Soort",
+    "Temperature": "Temperatuur",
+    "Brightness": "Helderheid",
+    "Humidity": "Luchtvochtigheid",
+    "Wind": "Wind",
+    "Rain": "Regen",
+    "Other": "Overig"
 }

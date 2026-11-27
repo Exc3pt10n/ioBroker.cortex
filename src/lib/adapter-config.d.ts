@@ -13,8 +13,10 @@ declare global {
             burstWindow: number;
             externalWindow: number;
             retentionDays: number;
-            contextTemperature: string;
-            contextBrightness: string;
+            /** Outdoor values chosen by the user */
+            contextValues: { id: string; kind: string }[];
+            /** Record room temperature and humidity automatically */
+            contextRooms: boolean;
         }
     }
 }

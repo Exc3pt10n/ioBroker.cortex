@@ -138,7 +138,7 @@ function isTechnical(name: string, id: string): boolean {
  * Readable name: the nearest meaningful name of the state, its parent or grandparent (any object type).
  * Fallback: the key of the parent with spaces ("Leuchte_Einfahrt" → "Leuchte Einfahrt").
  */
-function readableName(id: string, objects: ObjectMap, lang: string): string {
+export function readableName(id: string, objects: ObjectMap, lang: string): string {
     const own = getName(objects[id], lang);
     const ownUseful = own && !isTechnical(own, id) ? own : undefined;
     const [parentId, grandParentId] = parents(id);
@@ -173,7 +173,7 @@ function deviceOf(id: string, objects: ObjectMap): string {
 }
 
 /** Room per state from enum.rooms (members may be the state itself or one of its parents) */
-function roomIndex(objects: ObjectMap, lang: string): Map<string, string> {
+export function roomIndex(objects: ObjectMap, lang: string): Map<string, string> {
     const index = new Map<string, string>();
     for (const [id, obj] of Object.entries(objects)) {
         if (!id.startsWith('enum.rooms.') || obj.type !== 'enum') {
@@ -187,7 +187,7 @@ function roomIndex(objects: ObjectMap, lang: string): Map<string, string> {
     return index;
 }
 
-function findRoom(id: string, rooms: Map<string, string>): string | undefined {
+export function findRoom(id: string, rooms: Map<string, string>): string | undefined {
     return (
         rooms.get(id) ??
         parents(id)

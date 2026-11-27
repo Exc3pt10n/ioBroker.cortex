@@ -141,12 +141,27 @@ Dritte Musterart für Handgriffe, die weder an eine Uhrzeit noch an ein Ereignis
 draußen über 26 °C hat und die Sonne auf der Südseite steht – an kühleren Tagen nie.“
 
 - Vergleich der Umgebungswerte zum Zeitpunkt der Handgriffe mit den Werten, wenn nicht gehandelt wurde → Schwellwert
-- Umgebungswerte: **Sonnenstand** (Höhe, Himmelsrichtung – berechnet aus Zeitstempel und Standort, wird nicht
-  gespeichert), **Außentemperatur** und **Helligkeit** (vom Benutzer im Admin gewählte States, da sich nicht
-  zuverlässig erkennen lässt, welcher Sensor „außen“ ist)
-- ✅ **Die Aufzeichnung der Umgebungswerte läuft bereits im Rekorder** (alle 15 Minuten, eigenes Log). Grund: Ohne
-  Altdaten-Import kann Cortex nur aus selbst gesammelten Daten lernen – wer erst später aufzeichnet, verliert einen
-  Sommer.
+- ✅ **Die Aufzeichnung läuft bereits im Rekorder** (alle 15 Minuten, eigenes Log). Grund: Ohne Altdaten-Import
+  kann Cortex nur aus selbst gesammelten Daten lernen – wer erst später aufzeichnet, verliert einen Sommer.
+
+**Umgebungswerte – drei Gruppen:**
+
+| Gruppe | Beispiele | Wie |
+|---|---|---|
+| Abgeleitet | Jahreszeit, Tageslänge, Sonnenauf-/-untergang, Sonnenstand, Wochentag | **nicht aufgezeichnet** – jederzeit aus Zeitstempel und Standort berechenbar, auch rückwirkend. Feiertage/Schulferien später (brauchen das Bundesland) |
+| Außen | Temperatur, Helligkeit (auch je Fassade), Wind, Regen | **Liste im Admin**, Benutzer wählt einmal aus – welcher Sensor „außen“ ist, lässt sich nicht zuverlässig erkennen |
+| Raum | Raumtemperatur, Luftfeuchte | **automatisch**: Rollen `value.temperature`/`value.humidity` mit Raum in `enum.rooms` (abschaltbar). Außenwerte aus der Liste haben Vorrang – Außensensoren stehen oft in „Räumen“ wie Garten |
+
+**Breit sammeln, eng auswerten:** Viele Variablen erzeugen Zufallstreffer („Flurlicht an, wenn die Luftfeuchte im
+Bad über 60 % liegt“ – statistisch wahr, als Automation Unsinn). Ausgewertet werden daher nur plausible
+Kombinationen je Gerätetyp:
+
+| Aktion | geprüft gegen |
+|---|---|
+| Licht | Dunkelheit, Helligkeit |
+| Rollladen | Sonnenstand, Helligkeit (Fassade), Außentemperatur |
+| Klima, Heizung, Lüfter | Raumtemperatur, Luftfeuchte, Außentemperatur |
+| Schalter allgemein | nur Zeit und Ereignisse |
 - Hinweis: Übernimmt bereits shuttercontrol o. Ä. den Hitzeschutz, gibt es keine Handgriffe und keinen Vorschlag
 
 ### 4. Vorschläge
@@ -192,8 +207,11 @@ Die feste Obergrenze von 5 Vorschlägen erlaubt die Darstellung im Admin (jsonCo
 
 - Eigenes Ereignis-Log: tägliche JSONL-Dateien im Instanz-Datenverzeichnis, rollierend (Standard 60 Tage)
 - Umgebungswerte: eigenes Log je Tag (`<datum>.context.jsonl`), Stichprobe alle 15 Minuten
-- ❓ Für Bedingung → Aktion reichen 60 Tage nicht (Sommer vs. Winter). Vor 0.3 klären: längere Aufbewahrung oder
-  verdichtete Langzeitdaten (z. B. Handgriffe je Tag mit Umgebungswerten)
+- **Langzeitdaten** (✅ entschieden, ⏰ bis spätestens Ende Januar 2027 umsetzen): Rohdaten bleiben 60 Tage;
+  zusätzlich verdichtete Daten für mindestens 2 Jahre – je Tag und Aktion: Zeitpunkte, Anzahl, Werte und die
+  Umgebungswerte im Moment der Aktion (wenige KB pro Tag). Nötig, weil Jahreszeiten nur über ein Jahr vergleichbar
+  sind. Die Verdichtung kann nachträglich aus den Rohdaten erzeugt werden, solange diese noch nicht gelöscht sind –
+  daher die Frist.
 - Keine nativen Abhängigkeiten (kein SQLite) – problemlose Installation auf ARM
 - Analyse einmal nachts; Vorschläge bleiben tagsüber stabil
 - Größenordnung: einige tausend Ereignisse/Tag, < 1 Mio. in 60 Tagen → Analyse im Sekundenbereich, auch auf einem Pi

@@ -2,6 +2,7 @@ import * as utils from '@iobroker/adapter-core';
 import { randomBytes } from 'node:crypto';
 import { gzipSync } from 'node:zlib';
 import { Classifier, type ClassifierOptions } from './lib/classify';
+import { findContextSources, type ContextSource } from './lib/context';
 import { ContextLog, EventLog, type ContextSample } from './lib/eventlog';
 import { buildExport } from './lib/export';
 import { findRelevant, parseList, type ObservedState, type RelevanceOptions } from './lib/relevance';
@@ -20,6 +21,7 @@ class Cortex extends utils.Adapter {
     private log_?: EventLog;
     private context?: ContextLog;
     private lastContextSample = 0;
+    private contextSources: ContextSource[] = [];
     private stats = new StatsCollector(dayKey(Date.now()));
     private flushTimer?: ioBroker.Interval;
     private rescanTimer?: ioBroker.Interval;
@@ -114,6 +116,20 @@ class Cortex extends utils.Adapter {
                 namespace: this.namespace,
             };
             const next = findRelevant(objects, options);
+            this.contextSources = findContextSources(objects, {
+                configured: Array.isArray(this.config.contextValues) ? this.config.contextValues : [],
+                autoRooms: this.config.contextRooms !== false,
+                ignoreAdapters: options.ignoreAdapters,
+                exclude: options.exclude,
+                lang: this.lang,
+            });
+            await this.setStateAsync(
+                'info.contextSources',
+                JSON.stringify(
+                    this.contextSources.map(c => ({ id: c.id, kind: c.kind, name: c.name, room: c.room ?? null })),
+                ),
+                true,
+            );
 
             const removed = [...this.observed.keys()].filter(id => !next.has(id));
             const added = [...next.keys()].filter(id => !this.observed.has(id));
@@ -193,31 +209,17 @@ class Cortex extends utils.Adapter {
         }
     }
 
-    /** Context values chosen in the settings: their states read periodically, so the log holds a time series */
-    private contextSources(): Record<string, string> {
-        const sources: Record<string, string> = {};
-        if (this.config.contextTemperature?.trim()) {
-            sources.temperature = this.config.contextTemperature.trim();
-        }
-        if (this.config.contextBrightness?.trim()) {
-            sources.brightness = this.config.contextBrightness.trim();
-        }
-        return sources;
-    }
-
     private async sampleContext(): Promise<void> {
         this.lastContextSample = Date.now();
-        for (const [kind, id] of Object.entries(this.contextSources())) {
+        for (const source of this.contextSources) {
             try {
-                const state = await this.getForeignStateAsync(id);
+                const state = await this.getForeignStateAsync(source.id);
                 const value = typeof state?.val === 'number' ? state.val : Number(state?.val);
-                if (state && state.val !== null && Number.isFinite(value)) {
-                    this.context?.append({ t: this.lastContextSample, k: kind, v: value });
-                } else {
-                    this.log.debug(`Context value ${kind} (${id}) has no numeric value`);
+                if (state && state.val !== null && state.val !== '' && Number.isFinite(value)) {
+                    this.context?.append({ t: this.lastContextSample, k: source.kind, id: source.id, v: value });
                 }
             } catch (e) {
-                this.log.warn(`Reading context value ${kind} (${id}) failed: ${(e as Error).message}`);
+                this.log.debug(`Reading context value ${source.id} failed: ${(e as Error).message}`);
             }
         }
     }

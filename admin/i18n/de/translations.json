@@ -22,7 +22,16 @@
     "Reaction window for automations outside ioBroker (seconds)": "Reaktionsfenster für Automationen außerhalb von ioBroker (Sekunden)",
     "A device that changes this soon after a sensor of the same adapter instance was switched by its bridge or central unit (e.g. Hue motion sensor, CCU program), not by a person": "Ein Gerät, das sich so kurz nach einem Sensor derselben Adapter-Instanz ändert, wurde von seiner Bridge oder Zentrale geschaltet (z. B. Hue-Bewegungsmelder, CCU-Programm), nicht von einem Menschen",
     "Context values": "Umgebungswerte",
-    "Optional: recorded every 15 minutes, so that Cortex can later recognise actions that depend on the weather (e.g. blinds down on hot days). The position of the sun is calculated from the location of the system.": "Optional: werden alle 15 Minuten aufgezeichnet, damit Cortex später Aktionen erkennen kann, die vom Wetter abhängen (z. B. Rollläden runter an heißen Tagen). Der Sonnenstand wird aus dem Standort des Systems berechnet.",
-    "Outdoor temperature": "Außentemperatur",
-    "Outdoor brightness": "Helligkeit außen"
+    "Recorded every 15 minutes, so that Cortex can later recognise actions that depend on the weather or the room climate (e.g. blinds down on hot days). Season, sun position and weekday are calculated from the time and location and need no sensor.": "Werden alle 15 Minuten aufgezeichnet, damit Cortex später Aktionen erkennen kann, die vom Wetter oder Raumklima abhängen (z. B. Rollläden runter an heißen Tagen). Jahreszeit, Sonnenstand und Wochentag werden aus Zeit und Standort berechnet und brauchen keinen Sensor.",
+    "Record room temperature and humidity automatically": "Raumtemperatur und Luftfeuchte automatisch aufzeichnen",
+    "All temperature and humidity sensors that are assigned to a room": "Alle Temperatur- und Feuchtesensoren, die einem Raum zugeordnet sind",
+    "Outdoor values": "Außenwerte",
+    "State": "State",
+    "Kind": "Art",
+    "Temperature": "Temperatur",
+    "Brightness": "Helligkeit",
+    "Humidity": "Luftfeuchte",
+    "Wind": "Wind",
+    "Rain": "Regen",
+    "Other": "Sonstiges"
 }

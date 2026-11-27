@@ -47,7 +47,8 @@ export function buildExport(
         lines.push(JSON.stringify(exported));
     }
     for (const sample of context) {
-        lines.push(JSON.stringify({ type: 'context', ...sample }));
+        const { id, ...rest } = sample;
+        lines.push(JSON.stringify({ type: 'context', key: anonymousKey(id, secret), ...rest }));
     }
     return `${lines.join('\n')}\n`;
 }

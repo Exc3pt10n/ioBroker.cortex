@@ -95,8 +95,8 @@
         "burstWindow": 2,
         "externalWindow": 3,
         "retentionDays": 60,
-        "contextTemperature": "",
-        "contextBrightness": ""
+        "contextValues": [],
+        "contextRooms": true
     },
     "objects": [],
     "instanceObjects": [
@@ -197,6 +197,21 @@
                 "name": {
                     "en": "Observed states (JSON)",
                     "de": "Beobachtete States (JSON)"
+                },
+                "type": "string",
+                "role": "json",
+                "read": true,
+                "write": false
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.contextSources",
+            "type": "state",
+            "common": {
+                "name": {
+                    "en": "Recorded context values (JSON)",
+                    "de": "Aufgezeichnete Umgebungswerte (JSON)"
                 },
                 "type": "string",
                 "role": "json",

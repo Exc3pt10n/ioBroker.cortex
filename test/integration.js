@@ -54,7 +54,9 @@ tests.integration(path.join(__dirname, '..'), {
                     native: {},
                 });
                 await harness.states.setStateAsync(TEMPERATURE, { val: 27.5, ack: true });
-                await harness.changeAdapterConfig('cortex', { native: { contextTemperature: TEMPERATURE } });
+                await harness.changeAdapterConfig('cortex', {
+                    native: { contextValues: [{ id: TEMPERATURE, kind: 'temperature' }] },
+                });
                 await harness.startAdapterAndWait();
 
                 await waitForState(harness, 'cortex.0.info.status', v => v === 'recording');
@@ -83,7 +85,7 @@ tests.integration(path.join(__dirname, '..'), {
                 expect(recorded.length).to.be.greaterThan(0);
                 expect(recorded.at(-1)).to.include({ o: 'ui', s: 'web', v: true });
                 // Context value sampled at the start
-                expect(events.filter(e => e.type === 'context').at(-1)).to.include({ k: 'temperature', v: 27.5 });
+                expect(events.filter(e => e.type === 'context').at(-1)).to.include({ k: 'outdoor.temperature', v: 27.5 });
             });
         });
     },

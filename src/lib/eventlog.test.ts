@@ -55,11 +55,13 @@ describe('ContextLog', () => {
             const events = new EventLog(dir);
             const context = new ContextLog(dir);
             events.append(event(now, 'ui'));
-            context.append({ t: now, k: 'temperature', v: 21 });
+            context.append({ t: now, k: 'room.temperature', id: 'hm-rpc.0.X.1.ACTUAL_TEMPERATURE', v: 21 });
             await events.flush();
             await context.flush();
             assert.deepEqual(await events.days(), [dayKey(now)]);
-            assert.deepEqual(await context.readDay(dayKey(now)), [{ t: now, k: 'temperature', v: 21 }]);
+            assert.deepEqual(await context.readDay(dayKey(now)), [
+                { t: now, k: 'room.temperature', id: 'hm-rpc.0.X.1.ACTUAL_TEMPERATURE', v: 21 },
+            ]);
             assert.equal((await events.readDay(dayKey(now))).length, 1);
             assert.equal(await context.cleanup(60, now + 100 * DAY), 1);
         } finally {
@@ -100,7 +102,7 @@ describe('buildExport', () => {
                 },
             ],
             [event(1000, 'device', 'hue.0.Living_room.on')],
-            [{ t: 1000, k: 'temperature', v: 27.5 }],
+            [{ t: 1000, k: 'outdoor.temperature', id: 'hm-rpc.0.WEATHER.1.ACTUAL_TEMPERATURE', v: 27.5 }],
             'secret',
             {},
         );
@@ -112,6 +114,16 @@ describe('buildExport', () => {
             .map(l => JSON.parse(l));
         assert.equal(header.states[0].key, line.key);
         assert.equal(header.states[0].instance, 'hue.0');
-        assert.deepEqual(context, { type: 'context', t: 1000, k: 'temperature', v: 27.5 });
+        assert.equal(text.includes('WEATHER'), false);
+        assert.deepEqual(
+            { ...context, key: undefined },
+            {
+                type: 'context',
+                key: undefined,
+                t: 1000,
+                k: 'outdoor.temperature',
+                v: 27.5,
+            },
+        );
     });
 });

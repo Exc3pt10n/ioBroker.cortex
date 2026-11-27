@@ -13,8 +13,10 @@ import { dayKey } from './stats';
 /** Measured value at a point in time (outdoor temperature, brightness …) */
 export interface ContextSample {
     t: number;
-    /** Kind of value, e.g. "temperature" */
+    /** Kind of value, e.g. "outdoor.temperature", "room.humidity" */
     k: string;
+    /** State the value was read from */
+    id: string;
     v: number;
 }
 
