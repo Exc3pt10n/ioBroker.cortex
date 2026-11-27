@@ -197,7 +197,17 @@ Weitere Festlegungen:
 - Eigene Schaltbefehle sind `script`-Ereignisse mit Absender `cortex` – sie zählen nie als Handgriff
 - Hauptschalter „Alle Cortex-Regeln pausieren“ (z. B. Urlaub, Gäste)
 - Optional für Bastler: Regel „als Skript exportieren“ (Blockly/JavaScript), danach verwaltet der Benutzer sie selbst
-- Sicherheit: Regeln nur für Aktionen (Licht, Schalter, Dimmer, Rollladen), nie für Schlösser, Alarmanlagen o. Ä.
+- Sicherheitsrelevante Geräte (Schloss, Alarmanlage, Garagentor): Cortex **erkennt und schlägt vor** wie bei allen
+  anderen Geräten – die Grenze liegt bei der Umsetzung:
+
+  | | Licht, Schalter, Dimmer, Rollladen | Schloss, Alarm, Garagentor |
+  |---|---|---|
+  | Erkennen und vorschlagen | ✅ | ✅ |
+  | Als Cortex-Regel umsetzen | ✅ | nur **sichernde** Richtung (abschließen, scharf schalten, Tor zu), mit ausdrücklicher zweiter Bestätigung und deutlicher Kennzeichnung |
+  | Öffnende Richtung (aufschließen, unscharf, Tor auf) | ✅ | **nur als Skript-Export** – nie als Cortex-Regel |
+
+  Begründung: Fällt Cortex aus oder liegt ein Muster falsch, bleibt die Tür eher zu als offen.
+  Sicherheitsrelevante Geräte werden erst in einer späteren Version beobachtet (der Rekorder erfasst sie noch nicht).
 
 Erwartung an das Produkt: Ein Haushalt bekommt in den ersten Monaten etwa 5–15 gute Vorschläge, danach weniger –
 jede umgesetzte Automation entfernt die Handgriffe, aus denen Cortex lernt. Das ist das Ziel, kein Mangel. Cortex
