@@ -14,7 +14,7 @@ Cortex uses no cloud AI. All decisions are derived locally from what happens in 
 
 ## What the recorder does
 
-- **Observes** lights, switches, dimmers and blinds (actions) as well as motion, door and window sensors (triggers), found by their standard ioBroker roles – independent of the adapter. Measured values (temperature, power …) are never recorded.
+- **Observes** lights, switches, dimmers and blinds (actions) as well as motion, door and window sensors (triggers), found by their standard ioBroker roles – independent of the adapter. This includes read-only actual states of outputs (`value.blind`, status channels): a press on a directly linked wall switch only shows up there. Measured values (temperature, power …), settings that merely use the role `switch` (camera LED, privacy mode …) and the own states of user interfaces and voice assistants are not observed.
 - **Classifies** every change by its origin:
 
   | Origin | Meaning | Counts as |
@@ -25,7 +25,7 @@ Cortex uses no cloud AI. All decisions are derived locally from what happens in 
   | `other` | command from an adapter in neither list – see `stats.unknownSenders` | unknown |
   | `sensor` | change of a trigger | – |
 
-  A device report shortly after a command only confirms it and is not counted again. Several changes of one adapter within a short time (scene, group) count as one action.
+  A device report shortly after a command only confirms it and is not counted again. Reports of other states of the same adapter instance right after a command (status channel, lamps of a group, a blind that is still moving) take over the origin of the command. Several changes of one adapter within a short time (scene, group) count as one action.
 - **Keeps a local event log** (one file per day in the instance data directory, 60 days by default).
 - **Shows statistics** as states: manual/automated actions today, share of manual actions, adapters with unknown origin, the most recent actions in plain text (`stats.recentText`).
 

@@ -69,6 +69,21 @@ Einstufung jedes Ereignisses beim Eingang:
 Mehrere Änderungen eines Adapters innerhalb kurzer Zeit (Standard 2 s) zählen als **eine** Aktion – so werden
 Szenen und Gruppen allgemein behandelt, ohne Adapter-Sonderlogik.
 
+Meldungen **anderer** States derselben Adapter-Instanz kurz nach einem Befehl übernehmen dessen Herkunft
+(Folge eines Befehls). Das Fenster verlängert sich, solange Meldungen weiterkommen. Damit sind allgemein abgedeckt:
+Status-Kanäle (Homematic IP meldet den Ist-Zustand in einem eigenen Kanal), Lampen einer Gruppe oder Szene und
+Zwischenstände eines fahrenden Rollladens.
+
+Erkenntnisse aus dem ersten echten System (Homematic IP, Philips Hue, eufy, Alexa, KEBA, Toshiba):
+
+- Die Rolle `switch` wird auch für Einstellungen genutzt (eufy: 78 Kamera-Optionen). Bei `switch` und `state`
+  zählen daher nur typische Ausgangs-Schlüssel (`STATE`, `on`, `POWER`, `Switch` …).
+- Schreibgeschützte Ist-Zustände (`value.blind`, Status-Kanal mit `STATE`) müssen beobachtet werden: Ein Druck auf
+  einen direkt verknüpften Wandtaster ist nur dort sichtbar.
+- Die eigenen States von Oberflächen und Sprachassistenten (z. B. Bluetooth-Verbindungen eines Echo) sind keine Geräte.
+- Homematic IP legt je Ausgang mehrere virtuelle Kanäle an; ohne Namensabgleich mit der CCU haben Kanäle nur
+  Seriennummern als Namen. ❓ Vor 0.1 klären, wie Vorschläge diese Ausgänge benennen.
+
 🔬 Offene Risiken, die der Rekorder klären soll:
 
 - Nicht jeder Adapter setzt `from` zuverlässig (z. B. Polling-Adapter).

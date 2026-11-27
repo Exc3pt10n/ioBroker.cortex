@@ -118,4 +118,32 @@ describe('Classifier', () => {
         assert.equal(a.event.b, b.event.b);
         assert.notEqual(b.event.b, d.event.b);
     });
+
+    it('device reports after a command to the same instance inherit its origin (status channel, group, moving blind)', () => {
+        const c = classifier();
+        c.classify(light, change(1000, true, false, 'system.adapter.javascript.0'));
+        // Another state of the same instance reports shortly after the command …
+        const sibling = c.classify(lamp2, change(3000, true, true, 'system.adapter.hue.0'));
+        assert.ok(sibling.type === 'event');
+        assert.equal(sibling.event.o, 'script');
+        assert.equal(sibling.event.c, 1);
+        // … and reports that keep coming stay attached to it (blind moving for 30 s)
+        let t = 3000;
+        for (let i = 0; i < 5; i++) {
+            t += 6000;
+            assert.equal(origin(c.classify(lamp2, change(t, i, true, 'system.adapter.hue.0'))), 'script');
+        }
+        // A report after a quiet period is a new device event
+        assert.equal(origin(c.classify(lamp2, change(t + 60_000, true, true, 'system.adapter.hue.0'))), 'device');
+    });
+
+    it('commands to another instance do not take over device reports', () => {
+        const c = classifier();
+        c.classify(motion, change(500, true, true, 'system.adapter.hm-rpc.0'));
+        c.classify(
+            { ...light, id: 'shelly.0.x.Switch', instance: 'shelly.0' },
+            change(1000, true, false, 'system.adapter.javascript.0'),
+        );
+        assert.equal(origin(c.classify(light, change(2000, true, true, 'system.adapter.hue.0'))), 'device');
+    });
 });

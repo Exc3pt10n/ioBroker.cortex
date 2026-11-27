@@ -89,13 +89,17 @@ class Cortex extends utils.Adapter {
     /** Finds the relevant states and adjusts the subscriptions */
     private async rescan(): Promise<void> {
         try {
-            // All states, channels and devices; enums are not included and are read separately
+            // Without a type only states are returned: channels and devices (names) and rooms are read separately
             const objects: Record<string, ioBroker.Object> = {
-                ...(await this.getForeignObjectsAsync('*')),
+                ...(await this.getForeignObjectsAsync('*', 'state')),
+                ...(await this.getForeignObjectsAsync('*', 'channel')),
+                ...(await this.getForeignObjectsAsync('*', 'device')),
+                ...(await this.getForeignObjectsAsync('*', 'folder')),
                 ...(await this.getForeignObjectsAsync('enum.rooms.*', 'enum')),
             };
             const options: RelevanceOptions = {
-                ignoreAdapters: parseList(this.config.ignoreAdapters),
+                // States of user interfaces and voice assistants are their own settings, not devices
+                ignoreAdapters: [...parseList(this.config.ignoreAdapters), ...parseList(this.config.uiAdapters)],
                 include: parseList(this.config.include),
                 exclude: parseList(this.config.exclude),
                 lang: this.lang,

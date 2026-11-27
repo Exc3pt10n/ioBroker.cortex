@@ -41,23 +41,36 @@ interface RoleRule {
     kind: Kind;
     category: Category;
     types: ioBroker.CommonType[];
+    /** Role is also used for settings: only data point keys of real outputs count (ACTUATOR_KEYS) */
+    keyed?: boolean;
+    /** Actual state of an output, reported read-only (e.g. status channel of a Homematic IP actuator) */
+    status?: boolean;
 }
 
 /** Exact roles. Kept deliberately small: a missing role is fixed with "include", noise is hard to get rid of. */
 const ROLE_RULES: Record<string, RoleRule> = {
     'switch.light': { kind: 'action', category: 'light', types: ['boolean'] },
-    switch: { kind: 'action', category: 'switch', types: ['boolean'] },
+    switch: { kind: 'action', category: 'switch', types: ['boolean'], keyed: true },
     'switch.power': { kind: 'action', category: 'switch', types: ['boolean'] },
     'level.dimmer': { kind: 'action', category: 'dimmer', types: ['number'] },
     'level.brightness': { kind: 'action', category: 'dimmer', types: ['number'] },
     'level.blind': { kind: 'action', category: 'blind', types: ['number'] },
     'level.curtain': { kind: 'action', category: 'blind', types: ['number'] },
+    // Actual state of outputs: the only place where a press on a directly linked wall switch becomes visible
+    'value.blind': { kind: 'action', category: 'blind', types: ['number'], status: true },
+    state: { kind: 'action', category: 'switch', types: ['boolean'], keyed: true, status: true },
     'sensor.motion': { kind: 'trigger', category: 'motion', types: ['boolean'] },
     'sensor.occupancy': { kind: 'trigger', category: 'motion', types: ['boolean'] },
     'sensor.door': { kind: 'trigger', category: 'door', types: ['boolean'] },
     'sensor.window': { kind: 'trigger', category: 'window', types: ['boolean'] },
     'value.window': { kind: 'trigger', category: 'window', types: ['number'] },
 };
+
+/**
+ * Data point keys of real on/off outputs. Only checked for the plain role "switch", which many adapters also use for
+ * settings. Covers the conventions of common device adapters (STATE, on, POWER, Switch, state, relay …).
+ */
+const ACTUATOR_KEYS = /^(state|on|power|switch|relay|onoff)[_-]?\d*$/i;
 
 /** Names that say nothing on their own – the channel/device name is used instead */
 const GENERIC_NAMES =
@@ -113,16 +126,36 @@ function parents(id: string): string[] {
     return result;
 }
 
+/** Names that only repeat the data point key or contain a serial number ("001658A98F60D0:2.LEVEL") */
+function isTechnical(name: string, id: string): boolean {
+    const key = id.split('.').pop() ?? '';
+    return GENERIC_NAMES.test(name) || name.toLowerCase() === key.toLowerCase() || /[0-9A-F]{10,}/.test(name);
+}
+
+/**
+ * Readable name: the nearest meaningful name of the state, its parent or grandparent (any object type).
+ * Fallback: the key of the parent with spaces ("Leuchte_Einfahrt" → "Leuchte Einfahrt").
+ */
 function readableName(id: string, objects: ObjectMap, lang: string): string {
     const own = getName(objects[id], lang);
-    for (const parentId of parents(id)) {
-        const parent = objects[parentId];
-        if (parent && (parent.type === 'channel' || parent.type === 'device')) {
-            const parentName = getName(parent, lang);
-            if (parentName) {
-                return own && !GENERIC_NAMES.test(own) && own !== parentName ? `${parentName} ${own}` : parentName;
-            }
-        }
+    const ownUseful = own && !isTechnical(own, id) ? own : undefined;
+    const [parentId, grandParentId] = parents(id);
+    const parentName = parentId ? getName(objects[parentId], lang) : undefined;
+    if (parentName && !isTechnical(parentName, parentId)) {
+        return ownUseful && ownUseful !== parentName ? `${parentName} ${ownUseful}` : parentName;
+    }
+    const grandParentName = grandParentId ? getName(objects[grandParentId], lang) : undefined;
+    if (grandParentName && !isTechnical(grandParentName, grandParentId)) {
+        // Device name for an unnamed channel: keep the channel apart from its siblings ("Switch actuator (9)")
+        const channel = parentId.split('.').pop();
+        return objects[parentId]?.type === 'channel' ? `${grandParentName} (${channel})` : grandParentName;
+    }
+    if (ownUseful) {
+        return ownUseful;
+    }
+    const parentKey = parents(id)[0]?.split('.').pop();
+    if (parentKey && !/[0-9A-F]{10,}/.test(parentKey) && !/^\d+$/.test(parentKey)) {
+        return parentKey.replace(/_/g, ' ');
     }
     return own ?? id;
 }
@@ -178,10 +211,14 @@ export function findRelevant(objects: ObjectMap, options: RelevanceOptions): Map
         const common = obj.common as ioBroker.StateCommon;
         const role = common.role ?? '';
         let rule: RoleRule | undefined = ROLE_RULES[role];
+        if (rule?.keyed && !ACTUATOR_KEYS.test(id.split('.').pop() ?? '')) {
+            // Plain roles like "switch" are also used for settings (camera LED, privacy mode, wallbox options …)
+            rule = undefined;
+        }
         if (rule) {
             const typeOk = rule.types.includes(common.type);
             // Actions must be writable, triggers readable
-            const accessOk = rule.kind === 'action' ? common.write !== false : common.read !== false;
+            const accessOk = rule.kind === 'action' && !rule.status ? common.write !== false : common.read !== false;
             if (!typeOk || !accessOk) {
                 rule = undefined;
             }

@@ -48,6 +48,8 @@ export interface RecordedEvent {
     s: string;
     /** Burst: timestamp of the first event of the same action */
     b: number;
+    /** 1 = device report caused by a preceding command to the same adapter instance (origin taken from the command) */
+    c?: 1;
 }
 
 export type ClassifyResult = { type: 'event'; event: RecordedEvent } | { type: 'confirmation' } | { type: 'ignored' };
@@ -73,6 +75,12 @@ interface Pending {
     ts: number;
 }
 
+interface LastCommand {
+    ts: number;
+    origin: Origin;
+    sender: string;
+}
+
 interface LastBurst {
     ts: number;
     burst: number;
@@ -81,6 +89,8 @@ interface LastBurst {
 export class Classifier {
     private readonly pending = new Map<string, Pending>();
     private readonly bursts = new Map<string, LastBurst>();
+    /** Last command per adapter instance: device reports shortly after it are its consequences */
+    private readonly commands = new Map<string, LastCommand>();
 
     public constructor(private options: ClassifierOptions) {}
 
@@ -103,21 +113,39 @@ export class Classifier {
             // Command: also counts when the value does not change (a person pressed "on" again)
             const origin = this.commandOrigin(sender);
             this.pending.set(state.id, { ts: change.ts });
+            this.commands.set(state.instance, { ts: change.ts, origin, sender });
             return { type: 'event', event: this.event(state, change, origin, sender) };
         }
 
+        const command = this.commands.get(state.instance);
+        const followsCommand = !!command && change.ts - command.ts <= this.options.confirmWindowMs;
         const pending = this.pending.get(state.id);
+        this.pending.delete(state.id);
         if (pending && change.ts - pending.ts <= this.options.confirmWindowMs) {
-            this.pending.delete(state.id);
+            if (followsCommand) {
+                this.slide(command, change.ts);
+            }
             return { type: 'confirmation' };
-        }
-        if (pending) {
-            this.pending.delete(state.id);
         }
         if (!changed) {
             return { type: 'ignored' };
         }
-        return { type: 'event', event: this.event(state, change, this.deviceOrigin(state, sender), sender) };
+        const origin = this.deviceOrigin(state, sender);
+        if (origin === 'device' && followsCommand) {
+            // Consequence of a command to the same instance: other channel of the device (status channel of a
+            // blind, virtual channels), lamps of a group or scene, intermediate positions while a blind moves
+            this.slide(command, change.ts);
+            const event = this.event(state, change, command.origin, command.sender);
+            return { type: 'event', event: { ...event, c: 1 } };
+        }
+        return { type: 'event', event: this.event(state, change, origin, sender) };
+    }
+
+    /** Reports that keep coming (a moving blind) keep belonging to the command */
+    private slide(command: LastCommand | undefined, ts: number): void {
+        if (command && ts > command.ts) {
+            command.ts = ts;
+        }
     }
 
     /** Confirmed value written by the device adapter itself (or without sender) = device; otherwise by sender */

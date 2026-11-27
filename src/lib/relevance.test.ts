@@ -28,6 +28,17 @@ const objects: ObjectMap = {
     'shelly.0.SHSW.Relay0.Switch': state('switch', 'boolean', true, 'Switch'),
     'cortex.0.stats.manualActions': state('value', 'number', false, 'x'),
     '0_userdata.0.holiday': state('state', 'boolean', true, 'Holiday mode'),
+    // Settings that use the plain role "switch"
+    'eufy-next.0.T1.settings.statusLed': state('switch', 'boolean', true, 'Status LED'),
+    // Homematic IP: status channel (read-only actual state) and virtual receiver channel
+    'hm-rpc.0.XYZ': { _id: '', type: 'device', common: { name: 'Blind actuator' }, native: {} },
+    'hm-rpc.0.XYZ.1': channel('XYZ0000000001:1'),
+    'hm-rpc.0.XYZ.1.LEVEL': state('value.blind', 'number', false, 'XYZ0000000001:1.LEVEL'),
+    'hm-rpc.0.XYZ.2': channel('Living room blind'),
+    'hm-rpc.0.XYZ.2.LEVEL': state('level.blind', 'number', true, 'XYZ0000000001:2.LEVEL'),
+    'hm-rpc.0.SW.9': channel('SW00000000009:9'),
+    'hm-rpc.0.SW.9.STATE': state('state', 'boolean', false, 'STATE'),
+    'philips-hue.0.lights.Leuchte_Einfahrt.on': state('switch.light', 'boolean', true, 'On'),
     'enum.rooms.hall': {
         _id: '',
         type: 'enum',
@@ -50,8 +61,12 @@ describe('findRelevant', () => {
         assert.deepEqual(ids, [
             'hm-rpc.0.ABC.1.STATE',
             'hm-rpc.0.DEF.1.MOTION',
+            'hm-rpc.0.SW.9.STATE',
+            'hm-rpc.0.XYZ.1.LEVEL',
+            'hm-rpc.0.XYZ.2.LEVEL',
             'hue.0.Living_room.bri',
             'hue.0.Living_room.on',
+            'philips-hue.0.lights.Leuchte_Einfahrt.on',
             'shelly.0.SHSW.Relay0.Switch',
         ]);
     });
@@ -63,9 +78,14 @@ describe('findRelevant', () => {
         assert.equal(hall.room, 'Flur');
         assert.equal(hall.kind, 'action');
         assert.equal(result.get('hm-rpc.0.DEF.1.MOTION')!.kind, 'trigger');
-        // Without a channel/device object the state name is used
-        assert.equal(result.get('shelly.0.SHSW.Relay0.Switch')!.name, 'Switch');
+        // Generic state name without a parent object: the key of the parent
+        assert.equal(result.get('shelly.0.SHSW.Relay0.Switch')!.name, 'Relay0');
         assert.equal(result.get('hue.0.Living_room.bri')!.name, 'Living room ceiling');
+        // Technical channel names (serial numbers): device name plus channel
+        assert.equal(result.get('hm-rpc.0.XYZ.1.LEVEL')!.name, 'Blind actuator (1)');
+        assert.equal(result.get('hm-rpc.0.XYZ.2.LEVEL')!.name, 'Living room blind');
+        // No parent object: the key of the parent
+        assert.equal(result.get('philips-hue.0.lights.Leuchte_Einfahrt.on')!.name, 'Leuchte Einfahrt');
     });
 
     it('include adds states without a matching role, exclude removes them', () => {
