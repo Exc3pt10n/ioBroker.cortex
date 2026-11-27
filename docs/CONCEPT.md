@@ -1,41 +1,60 @@
 # ioBroker.cortex – Konzept
 
-Stand: 2026-11-27 · Phase: Konzeption · Status der Entscheidungen: ✅ entschieden · ❓ offen · 🔬 im Prototyp zu prüfen
+> **Cortex beobachtet wiederkehrende manuelle Aktionen und schlägt die Automatisierungen vor,
+> die dem Benutzer die meisten Handgriffe sparen.**
 
-## Vision
+Stand: 2026-11-27 · Phase: Konzeption · ✅ entschieden · ❓ offen · 🔬 im Prototyp zu prüfen
 
-Cortex lernt aus dem tatsächlichen Verhalten der Bewohner und schlägt sinnvolle Automatisierungen vor.
-Cortex steuert nichts selbst. Cortex liefert Entscheidungen, nicht Daten.
+## Was Cortex ist
+
+Cortex beobachtet, wie die Bewohner ihr Smart Home **von Hand** bedienen, und schlägt daraus höchstens
+**5 Automatisierungen** vor, die sich lohnen würden. Cortex schaltet selbst nichts und legt keine Skripte an –
+die Entscheidung trifft der Benutzer.
+
+Cortex nutzt keine Cloud-KI. Alle Entscheidungen werden lokal aus den Beobachtungen des Smart Homes abgeleitet.
+Dadurch bleiben die Daten im Haus und jede Empfehlung ist nachvollziehbar („an 14 von 17 Werktagen …“).
 
 Leitfragen des Benutzers:
 
 - Was hat mein Smart Home gelernt?
 - Welche Automatisierung sollte ich erstellen?
 
-## Grundprinzipien
+## Wie Cortex lernt
 
-- Keine Cloud, keine externen KI-Dienste, ausschließlich lokale Analyse
-- Erklärbar: jeder Vorschlag hat eine nachvollziehbare Begründung („an 14 von 17 Werktagen …“)
-- Keine Blackbox: Zählen, Zeitfenster, Verhältnisse – kein Machine Learning
-- Lieber kein Vorschlag als ein schlechter (konservative Standard-Schwellwerte)
+1. **Beobachten** – Aktionen (Licht, Schalter, Dimmer, Rollladen) und Auslöser (Bewegung, Tür, Fenster)
+2. **Unterscheiden** – hat ein **Mensch** oder ein **Skript** geschaltet? Nur menschliche Handgriffe zählen.
+3. **Muster finden** (nachts, einmal am Tag)
+   - Zeitmuster: „Wohnzimmerlicht werktags ca. 20 Min. nach Sonnenuntergang“
+   - Auslöser → Aktion: „Bewegung im Flur → Flurlicht an, wenn es dunkel ist“
+4. **Vorschlagen** – sortiert nach eingesparten Handgriffen pro Woche
 
-## Rahmenentscheidungen
+## Oberflächen
 
-| | Entscheidung | Status |
-|---|---|---|
-| Unabhängigkeit | Cortex läuft eigenständig auf jedem ioBroker-System, ohne andere Adapter vorauszusetzen | ✅ |
-| Steuerung | **Alles** ist über den ioBroker-Admin konfigurierbar und bedienbar (auch Vorschläge annehmen/ablehnen) | ✅ |
-| Oberflächen | Admin = vollständig; SmartVis = zusätzliche, komfortable Oberfläche über ein Cortex-Profil in SmartVis; andere VIS über States | ✅ |
-| Hardware | Raspberry Pi bis Intel NUC; keine hardwareabhängigen Modi (die Last ist klein, siehe unten) | ✅ |
-| Altdaten | Kein Import aus history/influxdb/sql | ✅ |
-| Technik | TypeScript, Node ≥ 22, Werkzeuge, Workflows und Konventionen wie ioBroker.smartvis (zentraler Workflow, Verteilung über npm) | ✅ |
-| Erkennung | Eigene Erkennung in Cortex (`@iobroker/type-detector` + Rollen + Enums); kein gemeinsames Paket mit SmartVis | ✅ |
+| | Rolle |
+|---|---|
+| ioBroker-Admin | Konfiguration. Die erste Version wird **vollständig** im Admin bedient – auch Vorschläge annehmen, bearbeiten, ablehnen. |
+| SmartVis | Langfristig die **bevorzugte Benutzeroberfläche** für Cortex. Anbindung über ein Cortex-Profil in SmartVis. |
+| States | Alle Ergebnisse stehen als ioBroker-States bereit – für andere VIS und Skripte. |
 
-## Kernproblem: Mensch oder Automation?
+## Rahmenentscheidungen ✅
 
-Nur **manuelle** Aktionen sind Kandidaten für Vorschläge. Sonst „entdeckt“ Cortex bestehende Skripte und schlägt sie erneut vor.
+| Thema | Entscheidung |
+|---|---|
+| Unabhängigkeit | Cortex läuft eigenständig auf jedem ioBroker-System; setzt weder SmartVis noch einen History-Adapter voraus |
+| Erkennung | Eigene Erkennung in Cortex (`@iobroker/type-detector`, `common.role`, `enum.rooms`); kein gemeinsames Paket mit SmartVis |
+| Hardware | Raspberry Pi bis Intel NUC; keine hardwareabhängigen Modi (die Last ist klein, siehe Datenhaltung) |
+| Altdaten | Kein Import aus history/influxdb/sql; Cortex sammelt selbst |
+| Technik | TypeScript, Node ≥ 22; Werkzeuge, Workflows und Konventionen wie ioBroker.smartvis (zentraler Workflow, Verteilung über npm) |
+| Analyse | Statistische Auswertung (Zählen, Zeitfenster, Verhältnisse) – keine neuronalen Netze, keine Blackbox |
+| Qualität | Lieber kein Vorschlag als ein schlechter: konservative Standard-Schwellwerte |
 
-Jedes Ereignis wird beim Eingang eingestuft:
+## Kernproblem: Mensch oder Skript?
+
+Nur **manuelle** Aktionen sind Kandidaten für Vorschläge – sonst schlägt Cortex bestehende Automationen erneut vor.
+Version 0.0.1 dient ausschließlich dazu, zu beweisen, dass diese Unterscheidung zuverlässig funktioniert.
+Gelingt das nicht, ist jede spätere Mustererkennung wertlos.
+
+Einstufung jedes Ereignisses beim Eingang:
 
 | Signal | Einstufung |
 |---|---|
@@ -45,86 +64,102 @@ Jedes Ereignis wird beim Eingang eingestuft:
 | `ack=true` vom Geräte-Adapter **nach** einem Befehl | Bestätigung – kein eigenes Ereignis, erbt die Einstufung des Befehls |
 | Sensor-Rollen (`sensor.motion`, `sensor.door`, `sensor.window`, …) | `sensor` |
 
-🔬 Größtes technisches Risiko: Nicht jeder Adapter setzt `from` zuverlässig (z. B. Polling-Adapter). Muss an realen Daten
-geprüft werden – deshalb ist der Rekorder (v0.0.1) der erste Schritt. Die Zuordnung `from`-Adapter → Einstufung
-ist im Admin überschreibbar.
+🔬 Nicht jeder Adapter setzt `from` zuverlässig (z. B. Polling-Adapter). Die Zuordnung
+„Quell-Adapter → Einstufung“ ist im Admin überschreibbar.
 
 ## Bausteine v0.1
 
-### 1. Relevanz-Filter (statt „Engine“)
+### 1. Relevanz-Filter
 
-Regelbasiert, keine Bewertungsmodelle:
+Regelbasiert:
 
-- Nur **diskrete** States (boolean, wenige Zustände). Numerische Messwerte sind in v0.1 ausgeschlossen.
-- Klassifizierung über `common.role` bzw. type-detector: **Auslöser** (Bewegung, Tür, Fenster, Taster) und **Aktionen** (Licht, Schalter, Dimmer, Rollladen)
+- **Auslöser**: diskrete Sensoren (Bewegung, Tür, Fenster, Taster)
+- **Aktionen**: Licht, Schalter, Dimmer, Rollladen – **einschließlich Stellwerten** (Helligkeit, Position),
+  damit Vorschläge wie „Licht auf 30 %“ möglich sind
+- **Ausgeschlossen**: Messwerte (Temperatur, Leistung, Feuchte …)
 - Raum und lesbarer Name aus `enum.rooms` und den Objektnamen von Gerät/Kanal
-- Im Admin: Ein-/Ausschlussliste (Adapter, Objekt-IDs), Übersicht „was wird beobachtet“
+- Im Admin: Ein-/Ausschlussliste und Übersicht „was wird beobachtet“
 
 ### 2. Zeitmuster
 
-- Pro manueller Aktion: Bewertung über **Tage** („an 14 von 17 Werktagen“), nicht über Ereignisanzahl
-- Gruppen: Werktag / Wochenende (nicht 7 Wochentage – dafür reichen die Daten nicht)
-- **Uhrzeit vs. Sonnenstand**: Streuung relativ zur Uhrzeit und relativ zum Sonnenuntergang/-aufgang vergleichen,
-  die kleinere gewinnt („20 Min. nach Sonnenuntergang“). Koordinaten aus `system.config`.
+- Bewertung über **Tage** („an 14 von 17 Werktagen“), nicht über Ereignisanzahl
+- Gruppen: Werktag / Wochenende
+- **Uhrzeit vs. Sonnenstand**: die Bezugsgröße mit der kleineren Streuung gewinnt
+  („20 Min. nach Sonnenuntergang“); Koordinaten aus `system.config`
 
-### 3. Ereignisketten (nur Paare)
+### 3. Auslöser → Aktion
 
-- Auslöser → manuelle Aktion innerhalb Δt (Standard 2 Min.)
+- Paare: Auslöser → manuelle Aktion innerhalb Δt (Standard 2 Min.); keine längeren Ketten in v0.1
 - Kennzahlen: Konfidenz P(Aktion | Auslöser) und **Lift** gegenüber der Grundrate der Aktion
-- Optionale Bedingung **„nur bei Dunkelheit“** (Sonnenstand) – hebt z. B. Bewegung → Licht von ~40 % auf ~90 %
-- Ketten mit mehr als zwei Gliedern: nicht in v0.1
+- Bedingung **„nur bei Dunkelheit“** (Sonnenstand) wird automatisch geprüft
 
 ### 4. Vorschläge
 
-- Höchstens **5** gleichzeitig
-- Ranking nach **eingesparten Handgriffen pro Woche**
-- Zeitmuster und Kette zur selben Aktion werden zu einem Vorschlag zusammengeführt
-- Feedback: annehmen / ablehnen / später. Abgelehnte Vorschläge kommen nie wieder.
-- Angenommen = vom Benutzer umgesetzt; Cortex legt **keine** Automation an
+- Höchstens **5** gleichzeitig, sortiert nach **eingesparten Handgriffen pro Woche**
+- Zeitmuster und Auslöser zur selben Aktion werden zu einem Vorschlag zusammengeführt
+- Jeder Vorschlag hat eine Begründung in Klartext
+
+Reaktionen des Benutzers:
+
+| Reaktion | Bedeutung |
+|---|---|
+| **Annehmen** | Der Benutzer setzt die Automation um. Cortex legt sie nicht selbst an. |
+| **Bearbeiten** | „Gute Idee, aber anders“: Zielwert (z. B. 30 %), Zeitfenster oder Bedingung (z. B. nur nachts) anpassen; danach gilt der Vorschlag als angenommen. Die Änderung fließt als Wissen zurück. |
+| **Ablehnen** | Dauerhaft unterdrückt, solange sich die zugrunde liegenden Daten nicht wesentlich ändern (siehe unten). |
+| **Später** | Ausgeblendet für einen Zeitraum (Standard 7 Tage). |
+
+**Wann ein abgelehnter Vorschlag zurückkommen darf** – alle Bedingungen müssen erfüllt sein:
+
+- seit der Ablehnung mindestens **doppelt so viele** Beobachtungen wie zum Zeitpunkt der Ablehnung,
+- die Sicherheit liegt **deutlich höher** als damals (Standard +15 Prozentpunkte),
+- mindestens **90 Tage** seit der Ablehnung.
+
+Cortex sagt dann offen: „Du hast das früher abgelehnt, inzwischen habe ich deutlich mehr Daten.“
+Eine **zweite** Ablehnung ist endgültig.
+
+🔬 Bearbeiten im Admin: Umfang auf die Parameter beschränken, die Cortex selbst versteht (Zielwert, Zeitfenster,
+Dunkelheit). Freie Regeln sind nicht vorgesehen.
 
 ### 5. State-API
 
-Zwei Darstellungen derselben Ergebnisse:
-
 | Zweck | States |
 |---|---|
-| SmartVis, Skripte | `suggestions.json` (atomar aktualisiert), `suggestions.feedback` (beschreibbar, `{"id":"…","action":"accept\|reject\|snooze"}`) |
-| Admin, vis-2, Jarvis … | feste Slots `suggestions.1` … `suggestions.5` mit `title`, `reason`, `savingsPerWeek`, `accept`, `reject`, `snooze` |
+| SmartVis, Skripte | `suggestions.json` (atomar aktualisiert); `suggestions.feedback` (beschreibbar, `{"id":"…","action":"accept\|edit\|reject\|snooze", …}`) |
+| Admin, vis-2, Jarvis … | feste Slots `suggestions.1` … `suggestions.5` mit `title`, `reason`, `savingsPerWeek` und Buttons |
 | Status | `info.status` (`learning` / `ready`), `info.learningSinceDays`, `info.eventsToday`, `info.manualShare` |
 | Erkenntnisse | `insights.json` – erkannte Muster unterhalb der Vorschlagsschwelle („Was hat mein Smart Home gelernt?“) |
 
-Warum beides: Die feste Obergrenze von 5 Vorschlägen erlaubt, sie im Admin (jsonConfig) ohne eigene
-Oberfläche darzustellen und zu bedienen. 🔬 Zu prüfen: Darstellung über die jsonConfig-Komponente `state`
-bzw. `sendTo`-Buttons; reicht das nicht, ein schlichter Admin-Tab.
+Die feste Obergrenze von 5 Vorschlägen erlaubt die Darstellung im Admin (jsonConfig) ohne eigene Oberfläche.
+🔬 Reicht jsonConfig nicht, gibt es einen schlichten Admin-Tab.
 
 ### 6. Datenhaltung und Analyse
 
-- **Eigenes Ereignis-Log**: tägliche JSONL-Dateien im Instanz-Datenverzeichnis, rollierend (Standard 60 Tage)
+- Eigenes Ereignis-Log: tägliche JSONL-Dateien im Instanz-Datenverzeichnis, rollierend (Standard 60 Tage)
 - Keine nativen Abhängigkeiten (kein SQLite) – problemlose Installation auf ARM
-- **Analyse einmal nachts als Batch**; Vorschläge bleiben tagsüber stabil
+- Analyse einmal nachts; Vorschläge bleiben tagsüber stabil
 - Größenordnung: einige tausend Ereignisse/Tag, < 1 Mio. in 60 Tagen → Analyse im Sekundenbereich, auch auf einem Pi
 
 ### 7. Kaltstart
 
-Zeitmuster brauchen 2–3 Wochen Daten. Cortex kommuniziert das offen
-(„Ich lerne seit 5 Tagen. Erste Vorschläge ca. ab Tag 14.“).
+Zeitmuster brauchen 2–3 Wochen Daten. Cortex sagt das offen:
+„Ich lerne seit 5 Tagen. Erste Vorschläge ca. ab Tag 14.“
 
 ## Bewusst nicht in v0.1
 
-Numerische Sensoren · Ketten > 2 · Anwesenheit/Personen · Saisonalität jenseits des Sonnenstands ·
-automatisches Anlegen von Skripten · Import von Altdaten · ML
+Messwerte · Ketten mit mehr als zwei Gliedern · Anwesenheit/Personen · Saisonalität jenseits des Sonnenstands ·
+automatisches Anlegen von Skripten · Import von Altdaten
 
 ## Fahrplan
 
 | Version | Inhalt | Ziel |
 |---|---|---|
-| 0.0.1 | **Rekorder**: Gerüst, Relevanz-Filter, Einstufung manuell/automatisch/Sensor, JSONL-Log, Statistik-States, Admin-Konfiguration | Einstufung an realen Daten validieren; Daten sammeln, während die Lernzeit ohnehin läuft |
-| 0.0.x | Auswertung der Rekorder-Daten, Korrektur der Einstufungsregeln | Datenqualität |
-| 0.1.0 | Zeitmuster, Paare, Vorschläge, Feedback, State-API, Admin-Ansicht | MVP |
-| danach | Cortex-Profil in SmartVis | komfortable Oberfläche |
+| **0.0.1 Rekorder** | Gerüst, Relevanz-Filter, Einstufung Mensch/Skript/Sensor, Ereignis-Log, Statistik-States, Admin-Konfiguration | **Beweisen, dass „Mensch oder Skript“ zuverlässig erkannt wird** – wichtigster Meilenstein des Projekts |
+| 0.0.x | Einstufungsregeln an realen Daten nachschärfen | Datenqualität |
+| 0.1.0 | Zeitmuster, Auslöser → Aktion, Vorschläge mit Feedback, State-API, Admin-Ansicht | MVP |
+| danach | Cortex in SmartVis | bevorzugte Oberfläche |
 
 ## Offene Fragen
 
-- ❓ Wie werden Gruppen behandelt (Hue-Raum „Alle Lichter“ vs. Einzellampen), damit nicht beide als Aktion zählen?
-- ❓ Welche Adapter gelten standardmäßig als „Automation“ (javascript, scenes, shuttercontrol, …)?
-- 🔬 Lässt sich die Vorschlagsansicht im Admin mit jsonConfig allein ausreichend gut umsetzen?
+- ❓ Gruppen (Hue-Raum „Alle Lichter“ vs. Einzellampen): nur eine Aktion zählen
+- ❓ Welche Adapter gelten standardmäßig als Automation (javascript, scenes, shuttercontrol, node-red …)?
+- 🔬 Reicht jsonConfig für Vorschläge inkl. Bearbeiten im Admin?
