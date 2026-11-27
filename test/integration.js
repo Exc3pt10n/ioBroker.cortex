@@ -67,12 +67,15 @@ tests.integration(path.join(__dirname, '..'), {
                         modeValues: [{ id: HOLIDAY, kind: 'holiday' }],
                     },
                 });
+                // As after a manual npm install of a newer package: an object of the instance is missing
+                await harness.objects.delObjectAsync('cortex.0.info.contextSources');
                 await harness.startAdapterAndWait();
 
                 await waitForState(harness, 'cortex.0.info.status', v => v === 'recording');
                 expect(await waitForState(harness, 'cortex.0.info.observedActions', v => v >= 1)).to.equal(1);
                 const observed = JSON.parse((await harness.states.getStateAsync('cortex.0.info.observedStates')).val);
                 expect(observed[0]).to.include({ id: LIGHT, room: 'Test room', kind: 'action', category: 'light' });
+                expect(await harness.objects.getObjectAsync('cortex.0.info.contextSources')).to.have.property('type', 'state');
                 const contextSources = JSON.parse((await harness.states.getStateAsync('cortex.0.info.contextSources')).val);
                 expect(contextSources.find(c => c.id === HOLIDAY)).to.include({ kind: 'mode.holiday' });
                 await harness.states.setStateAsync(HOLIDAY, { val: true, ack: true });

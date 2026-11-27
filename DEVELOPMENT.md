@@ -12,6 +12,18 @@ npm run test:integration   # adapter in a real js-controller test instance
 npm run lint && npm run check
 ```
 
+## Installing a test build without a release
+
+```bash
+npm run build && npm pack
+# on the ioBroker host:
+cd /opt/iobroker && npm install /path/to/iobroker.cortex-X.Y.Z.tgz
+iobroker upload cortex      # admin pages and translations into the file storage
+iobroker restart cortex.0
+```
+
+Objects of the instance (`instanceObjects`) are created by the adapter itself at start if they are missing.
+
 ## Architecture (recorder)
 
 ```

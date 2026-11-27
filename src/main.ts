@@ -1,5 +1,7 @@
 import * as utils from '@iobroker/adapter-core';
 import { randomBytes } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { gzipSync } from 'node:zlib';
 import { Classifier, type ClassifierOptions } from './lib/classify';
 import { findContextSources, type ContextSource } from './lib/context';
@@ -51,6 +53,7 @@ class Cortex extends utils.Adapter {
             common: { name: 'Cortex', type: 'meta.user' },
             native: {},
         });
+        await this.ensureInstanceObjects();
         await this.restoreToday();
         await this.ensureRecordingSince();
         await this.rescan();
@@ -62,6 +65,23 @@ class Cortex extends utils.Adapter {
 
         this.flushTimer = this.setInterval(() => void this.tick(), FLUSH_INTERVAL_MS);
         this.rescanTimer = this.setInterval(() => void this.rescan(), RESCAN_INTERVAL_MS);
+    }
+
+    /**
+     * Creates missing objects of the instance. ioBroker creates them only when the instance is created or upgraded
+     * through ioBroker – not when a newer package is installed with npm directly (testers, manual updates).
+     */
+    private async ensureInstanceObjects(): Promise<void> {
+        try {
+            const ioPackage = JSON.parse(await readFile(join(__dirname, '..', 'io-package.json'), 'utf8')) as {
+                instanceObjects?: (ioBroker.SettableObject & { _id: string })[];
+            };
+            for (const { _id, ...obj } of ioPackage.instanceObjects ?? []) {
+                await this.setObjectNotExistsAsync(_id, obj);
+            }
+        } catch (e) {
+            this.log.warn(`Checking the objects of the instance failed: ${(e as Error).message}`);
+        }
     }
 
     private classifierOptions(): ClassifierOptions {
