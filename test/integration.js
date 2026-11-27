@@ -4,6 +4,7 @@ const { gunzipSync } = require('node:zlib');
 const { tests } = require('@iobroker/testing');
 
 const LIGHT = '0_userdata.0.cortexTest.light';
+const TEMPERATURE = '0_userdata.0.cortexTest.outdoorTemperature';
 
 function sendTo(harness, command, message) {
     return new Promise(resolve => harness.sendTo('cortex.0', command, message, resolve));
@@ -47,6 +48,13 @@ tests.integration(path.join(__dirname, '..'), {
                     common: { name: 'Test room', members: [LIGHT] },
                     native: {},
                 });
+                await harness.objects.setObjectAsync(TEMPERATURE, {
+                    type: 'state',
+                    common: { name: 'Outdoor', role: 'value.temperature', type: 'number', read: true, write: false },
+                    native: {},
+                });
+                await harness.states.setStateAsync(TEMPERATURE, { val: 27.5, ack: true });
+                await harness.changeAdapterConfig('cortex', { native: { contextTemperature: TEMPERATURE } });
                 await harness.startAdapterAndWait();
 
                 await waitForState(harness, 'cortex.0.info.status', v => v === 'recording');
@@ -71,8 +79,11 @@ tests.integration(path.join(__dirname, '..'), {
                 expect(header.states.filter(s => s.role === 'switch.light')).to.have.length(1);
                 expect(JSON.stringify(lines)).not.to.contain('cortexTest');
                 // The test instance keeps its data directory between local runs: check the latest event
-                expect(events.length).to.be.greaterThan(0);
-                expect(events.at(-1)).to.include({ o: 'ui', s: 'web', v: true });
+                const recorded = events.filter(e => e.type !== 'context');
+                expect(recorded.length).to.be.greaterThan(0);
+                expect(recorded.at(-1)).to.include({ o: 'ui', s: 'web', v: true });
+                // Context value sampled at the start
+                expect(events.filter(e => e.type === 'context').at(-1)).to.include({ k: 'temperature', v: 27.5 });
             });
         });
     },

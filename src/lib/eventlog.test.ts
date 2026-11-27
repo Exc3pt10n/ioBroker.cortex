@@ -3,7 +3,7 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { RecordedEvent } from './classify';
-import { EventLog } from './eventlog';
+import { ContextLog, EventLog } from './eventlog';
 import { buildExport } from './export';
 import { StatsCollector, dayKey, manualShare } from './stats';
 
@@ -47,6 +47,27 @@ describe('EventLog', () => {
     });
 });
 
+describe('ContextLog', () => {
+    it('keeps context values in their own files next to the events', async () => {
+        const dir = await mkdtemp(join(tmpdir(), 'cortex-'));
+        try {
+            const now = Date.now();
+            const events = new EventLog(dir);
+            const context = new ContextLog(dir);
+            events.append(event(now, 'ui'));
+            context.append({ t: now, k: 'temperature', v: 21 });
+            await events.flush();
+            await context.flush();
+            assert.deepEqual(await events.days(), [dayKey(now)]);
+            assert.deepEqual(await context.readDay(dayKey(now)), [{ t: now, k: 'temperature', v: 21 }]);
+            assert.equal((await events.readDay(dayKey(now))).length, 1);
+            assert.equal(await context.cleanup(60, now + 100 * DAY), 1);
+        } finally {
+            await rm(dir, { recursive: true, force: true });
+        }
+    });
+});
+
 describe('StatsCollector', () => {
     it('counts a scene/group once and computes the manual share', () => {
         const stats = new StatsCollector('2026-11-27');
@@ -79,16 +100,18 @@ describe('buildExport', () => {
                 },
             ],
             [event(1000, 'device', 'hue.0.Living_room.on')],
+            [{ t: 1000, k: 'temperature', v: 27.5 }],
             'secret',
             {},
         );
         assert.equal(text.includes('Living_room'), false);
         assert.equal(text.includes('Ceiling'), false);
-        const [header, line] = text
+        const [header, line, context] = text
             .trim()
             .split('\n')
             .map(l => JSON.parse(l));
         assert.equal(header.states[0].key, line.key);
         assert.equal(header.states[0].instance, 'hue.0');
+        assert.deepEqual(context, { type: 'context', t: 1000, k: 'temperature', v: 27.5 });
     });
 });

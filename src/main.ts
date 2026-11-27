@@ -2,7 +2,7 @@ import * as utils from '@iobroker/adapter-core';
 import { randomBytes } from 'node:crypto';
 import { gzipSync } from 'node:zlib';
 import { Classifier, type ClassifierOptions } from './lib/classify';
-import { EventLog } from './lib/eventlog';
+import { ContextLog, EventLog, type ContextSample } from './lib/eventlog';
 import { buildExport } from './lib/export';
 import { findRelevant, parseList, type ObservedState, type RelevanceOptions } from './lib/relevance';
 import { StatsCollector, dayKey, describe, manualShare } from './lib/stats';
@@ -11,11 +11,15 @@ import { StatsCollector, dayKey, describe, manualShare } from './lib/stats';
 const FLUSH_INTERVAL_MS = 60_000;
 /** Look for new or removed devices */
 const RESCAN_INTERVAL_MS = 60 * 60_000;
+/** Sample the context values (outdoor temperature …) */
+const CONTEXT_INTERVAL_MS = 15 * 60_000;
 
 class Cortex extends utils.Adapter {
     private observed = new Map<string, ObservedState>();
     private classifier?: Classifier;
     private log_?: EventLog;
+    private context?: ContextLog;
+    private lastContextSample = 0;
     private stats = new StatsCollector(dayKey(Date.now()));
     private flushTimer?: ioBroker.Interval;
     private rescanTimer?: ioBroker.Interval;
@@ -34,6 +38,7 @@ class Cortex extends utils.Adapter {
         this.lang = await this.systemLanguage();
         this.classifier = new Classifier(this.classifierOptions());
         this.log_ = new EventLog(utils.getAbsoluteInstanceDataDir(this));
+        this.context = new ContextLog(utils.getAbsoluteInstanceDataDir(this));
 
         // Meta object for the file storage of the instance (anonymous export)
         await this.setForeignObjectNotExistsAsync(this.namespace, {
@@ -45,6 +50,8 @@ class Cortex extends utils.Adapter {
         await this.ensureRecordingSince();
         await this.rescan();
         await this.log_.cleanup(this.retentionDays());
+        await this.context.cleanup(this.retentionDays());
+        await this.sampleContext();
         await this.setStateAsync('info.status', 'recording', true);
         await this.updateStatsStates();
 
@@ -168,16 +175,50 @@ class Cortex extends utils.Adapter {
     /** Periodic work: write the log, roll over the day, update states */
     private async tick(): Promise<void> {
         try {
+            if (Date.now() - this.lastContextSample >= CONTEXT_INTERVAL_MS) {
+                await this.sampleContext();
+            }
             await this.log_?.flush();
+            await this.context?.flush();
             const today = dayKey(Date.now());
             if (today !== this.stats.today.date) {
                 this.stats.reset(today);
                 this.statsDirty = true;
                 await this.log_?.cleanup(this.retentionDays());
+                await this.context?.cleanup(this.retentionDays());
             }
             await this.updateStatsStates();
         } catch (e) {
             this.log.warn(`Writing the event log failed: ${(e as Error).message}`);
+        }
+    }
+
+    /** Context values chosen in the settings: their states read periodically, so the log holds a time series */
+    private contextSources(): Record<string, string> {
+        const sources: Record<string, string> = {};
+        if (this.config.contextTemperature?.trim()) {
+            sources.temperature = this.config.contextTemperature.trim();
+        }
+        if (this.config.contextBrightness?.trim()) {
+            sources.brightness = this.config.contextBrightness.trim();
+        }
+        return sources;
+    }
+
+    private async sampleContext(): Promise<void> {
+        this.lastContextSample = Date.now();
+        for (const [kind, id] of Object.entries(this.contextSources())) {
+            try {
+                const state = await this.getForeignStateAsync(id);
+                const value = typeof state?.val === 'number' ? state.val : Number(state?.val);
+                if (state && state.val !== null && Number.isFinite(value)) {
+                    this.context?.append({ t: this.lastContextSample, k: kind, v: value });
+                } else {
+                    this.log.debug(`Context value ${kind} (${id}) has no numeric value`);
+                }
+            } catch (e) {
+                this.log.warn(`Reading context value ${kind} (${id}) failed: ${(e as Error).message}`);
+            }
         }
     }
 
@@ -220,11 +261,16 @@ class Cortex extends utils.Adapter {
     /** Anonymous export of all recorded days into the ioBroker file storage (Admin → Files) */
     private async writeExport(): Promise<string> {
         await this.log_!.flush();
+        await this.context!.flush();
         const events = [];
         for (const day of await this.log_!.days()) {
             events.push(...(await this.log_!.readDay(day)));
         }
-        const text = buildExport(this.observed.values(), events, await this.exportSecret(), {
+        const context: ContextSample[] = [];
+        for (const day of await this.context!.days()) {
+            context.push(...(await this.context!.readDay(day)));
+        }
+        const text = buildExport(this.observed.values(), events, context, await this.exportSecret(), {
             adapterVersion: this.version,
             created: new Date().toISOString(),
             settings: this.classifierOptions(),
@@ -255,6 +301,7 @@ class Cortex extends utils.Adapter {
                 this.clearInterval(this.rescanTimer);
             }
             await this.log_?.flush();
+            await this.context?.flush();
         } finally {
             callback();
         }

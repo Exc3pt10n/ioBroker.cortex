@@ -1,5 +1,6 @@
 /**
- * Event log: one JSONL file per local day in the instance data directory.
+ * Logs: one JSONL file per local day in the instance data directory – events ("2026-11-27.jsonl") and
+ * context values ("2026-11-27.context.jsonl").
  *
  * Plain files instead of a database: no native dependencies (installs everywhere, also on ARM),
  * readable with any text editor, and old days are removed by deleting a file.
@@ -9,14 +10,33 @@ import { join } from 'node:path';
 import type { RecordedEvent } from './classify';
 import { dayKey } from './stats';
 
-const FILE_PATTERN = /^(\d{4}-\d{2}-\d{2})\.jsonl$/;
+/** Measured value at a point in time (outdoor temperature, brightness …) */
+export interface ContextSample {
+    t: number;
+    /** Kind of value, e.g. "temperature" */
+    k: string;
+    v: number;
+}
 
-export class EventLog {
+export class JsonlLog<T extends { t: number }> {
     private buffer = new Map<string, string[]>();
+    private readonly pattern: RegExp;
+    private readonly ending: string;
 
-    public constructor(private readonly dir: string) {}
+    /** @param suffix part of the file name before ".jsonl" ("" for events, "context" for context values) */
+    public constructor(
+        private readonly dir: string,
+        suffix = '',
+    ) {
+        this.ending = suffix ? `.${suffix}.jsonl` : '.jsonl';
+        this.pattern = new RegExp(`^(\\d{4}-\\d{2}-\\d{2})${this.ending.replace(/\./g, '\\.')}$`);
+    }
 
-    public append(event: RecordedEvent): void {
+    private file(day: string): string {
+        return join(this.dir, `${day}${this.ending}`);
+    }
+
+    public append(event: T): void {
         const day = dayKey(event.t);
         const lines = this.buffer.get(day) ?? [];
         lines.push(JSON.stringify(event));
@@ -32,7 +52,7 @@ export class EventLog {
         this.buffer = new Map();
         await fs.mkdir(this.dir, { recursive: true });
         for (const [day, lines] of pending) {
-            await fs.appendFile(join(this.dir, `${day}.jsonl`), `${lines.join('\n')}\n`, 'utf8');
+            await fs.appendFile(this.file(day), `${lines.join('\n')}\n`, 'utf8');
         }
     }
 
@@ -41,7 +61,7 @@ export class EventLog {
         try {
             const files = await fs.readdir(this.dir);
             return files
-                .map(f => FILE_PATTERN.exec(f)?.[1])
+                .map(f => this.pattern.exec(f)?.[1])
                 .filter((d): d is string => !!d)
                 .sort();
         } catch {
@@ -50,20 +70,20 @@ export class EventLog {
     }
 
     /** Events of one day (unreadable lines, e.g. after a power cut, are skipped) */
-    public async readDay(day: string): Promise<RecordedEvent[]> {
+    public async readDay(day: string): Promise<T[]> {
         let text: string;
         try {
-            text = await fs.readFile(join(this.dir, `${day}.jsonl`), 'utf8');
+            text = await fs.readFile(this.file(day), 'utf8');
         } catch {
             return [];
         }
-        const events: RecordedEvent[] = [];
+        const events: T[] = [];
         for (const line of text.split('\n')) {
             if (!line.trim()) {
                 continue;
             }
             try {
-                events.push(JSON.parse(line) as RecordedEvent);
+                events.push(JSON.parse(line) as T);
             } catch {
                 // incomplete line
             }
@@ -77,10 +97,20 @@ export class EventLog {
         let deleted = 0;
         for (const day of await this.days()) {
             if (day < oldest) {
-                await fs.rm(join(this.dir, `${day}.jsonl`), { force: true });
+                await fs.rm(this.file(day), { force: true });
                 deleted++;
             }
         }
         return deleted;
+    }
+}
+
+/** Log of recorded events */
+export class EventLog extends JsonlLog<RecordedEvent> {}
+
+/** Log of context values, sampled periodically */
+export class ContextLog extends JsonlLog<ContextSample> {
+    public constructor(dir: string) {
+        super(dir, 'context');
     }
 }

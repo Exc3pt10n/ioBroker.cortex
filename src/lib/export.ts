@@ -1,12 +1,14 @@
 /**
  * Anonymous export of the recorded data – to check the classification with data from many installations.
  *
- * Contains: adapter instance, role and category of each state, time, value, origin and sending adapter.
+ * Contains: adapter instance, role and category of each state, time, value, origin and sending adapter, and the
+ * sampled context values (outdoor temperature, brightness).
  * Does not contain: object IDs, names, rooms. IDs are replaced by a hash with a random secret of this
  * installation, so they cannot be recovered by trying out common IDs.
  */
 import { createHash } from 'node:crypto';
 import type { RecordedEvent } from './classify';
+import type { ContextSample } from './eventlog';
 import type { ObservedState } from './relevance';
 
 export interface ExportedState {
@@ -27,6 +29,7 @@ export function anonymousKey(id: string, secret: string): string {
 export function buildExport(
     observed: Iterable<ObservedState>,
     events: RecordedEvent[],
+    context: ContextSample[],
     secret: string,
     meta: Record<string, unknown>,
 ): string {
@@ -42,6 +45,9 @@ export function buildExport(
         const { id, ...rest } = event;
         const exported: ExportedEvent = { key: anonymousKey(id, secret), ...rest };
         lines.push(JSON.stringify(exported));
+    }
+    for (const sample of context) {
+        lines.push(JSON.stringify({ type: 'context', ...sample }));
     }
     return `${lines.join('\n')}\n`;
 }

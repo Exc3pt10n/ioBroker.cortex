@@ -94,7 +94,9 @@
         "confirmWindow": 10,
         "burstWindow": 2,
         "externalWindow": 3,
-        "retentionDays": 60
+        "retentionDays": 60,
+        "contextTemperature": "",
+        "contextBrightness": ""
     },
     "objects": [],
     "instanceObjects": [

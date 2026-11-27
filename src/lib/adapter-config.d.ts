@@ -13,6 +13,8 @@ declare global {
             burstWindow: number;
             externalWindow: number;
             retentionDays: number;
+            contextTemperature: string;
+            contextBrightness: string;
         }
     }
 }

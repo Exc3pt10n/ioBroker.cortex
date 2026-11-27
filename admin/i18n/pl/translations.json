@@ -20,5 +20,9 @@
     "Create anonymous export": "Utwórz anonimowy eksport",
     "Saves all recorded events without names, rooms or IDs in the file storage (Admin → Files → cortex.0/export) – to check the detection": "Zapisuje wszystkie zarejestrowane zdarzenia bez nazw, pomieszczeń i ID w magazynie plików (Admin → Pliki → cortex.0/export) – do sprawdzenia rozpoznawania",
     "Reaction window for automations outside ioBroker (seconds)": "Okno reakcji dla automatyzacji poza ioBroker (sekundy)",
-    "A device that changes this soon after a sensor of the same adapter instance was switched by its bridge or central unit (e.g. Hue motion sensor, CCU program), not by a person": "Urządzenie, które zmienia się tak szybko po czujniku tej samej instancji adaptera, zostało przełączone przez swój mostek lub centralę (np. czujnik ruchu Hue, program CCU), a nie przez człowieka"
+    "A device that changes this soon after a sensor of the same adapter instance was switched by its bridge or central unit (e.g. Hue motion sensor, CCU program), not by a person": "Urządzenie, które zmienia się tak szybko po czujniku tej samej instancji adaptera, zostało przełączone przez swój mostek lub centralę (np. czujnik ruchu Hue, program CCU), a nie przez człowieka",
+    "Context values": "Wartości otoczenia",
+    "Optional: recorded every 15 minutes, so that Cortex can later recognise actions that depend on the weather (e.g. blinds down on hot days). The position of the sun is calculated from the location of the system.": "Opcjonalnie: zapisywane co 15 minut, aby Cortex mógł później rozpoznawać działania zależne od pogody (np. rolety w dół w upalne dni). Położenie słońca jest obliczane na podstawie lokalizacji systemu.",
+    "Outdoor temperature": "Temperatura zewnętrzna",
+    "Outdoor brightness": "Jasność zewnętrzna"
 }

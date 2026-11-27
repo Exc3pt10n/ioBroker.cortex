@@ -20,5 +20,9 @@
     "Create anonymous export": "Створити анонімний експорт",
     "Saves all recorded events without names, rooms or IDs in the file storage (Admin → Files → cortex.0/export) – to check the detection": "Зберігає всі записані події без назв, кімнат та ID у файловому сховищі (Admin → Файли → cortex.0/export) – для перевірки розпізнавання",
     "Reaction window for automations outside ioBroker (seconds)": "Вікно реакції для автоматизацій поза ioBroker (секунди)",
-    "A device that changes this soon after a sensor of the same adapter instance was switched by its bridge or central unit (e.g. Hue motion sensor, CCU program), not by a person": "Пристрій, що змінюється так швидко після датчика того самого екземпляра адаптера, був перемкнутий своїм мостом або центральним блоком (напр. датчик руху Hue, програма CCU), а не людиною"
+    "A device that changes this soon after a sensor of the same adapter instance was switched by its bridge or central unit (e.g. Hue motion sensor, CCU program), not by a person": "Пристрій, що змінюється так швидко після датчика того самого екземпляра адаптера, був перемкнутий своїм мостом або центральним блоком (напр. датчик руху Hue, програма CCU), а не людиною",
+    "Context values": "Значення оточення",
+    "Optional: recorded every 15 minutes, so that Cortex can later recognise actions that depend on the weather (e.g. blinds down on hot days). The position of the sun is calculated from the location of the system.": "Необов'язково: записуються кожні 15 хвилин, щоб Cortex згодом міг розпізнавати дії, що залежать від погоди (напр. жалюзі вниз у спекотні дні). Положення сонця обчислюється з місцезнаходження системи.",
+    "Outdoor temperature": "Зовнішня температура",
+    "Outdoor brightness": "Зовнішня освітленість"
 }

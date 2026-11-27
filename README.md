@@ -28,6 +28,7 @@ Cortex uses no cloud AI. All decisions are derived locally from what happens in 
 
   A device report shortly after a command only confirms it and is not counted again. Reports of the same device after a command (status channel, a blind that is still moving) and reports of other devices of the same adapter instance right after it (lamps of a group or scene) take over the origin of the command. Several changes of one adapter within a short time (scene, group) count as one action.
 - **Keeps a local event log** (one file per day in the instance data directory, 60 days by default).
+- **Records context values (optional):** outdoor temperature and brightness, chosen in the settings, every 15 minutes. Later versions use them to recognise actions that depend on the weather (e.g. blinds down on hot days).
 - **Shows statistics** as states: manual/automated actions today, share of manual actions, adapters with unknown origin, the most recent actions in plain text (`stats.recentText`).
 
 ## Helping to check the detection
@@ -45,6 +46,7 @@ Look at `cortex.0.stats.recentText` from time to time: does the origin of each a
 | Reaction window for automations outside ioBroker | 3 s | A device changing this soon after a sensor of the same instance counts as `external` |
 | Ignored adapters | `alias,javascript,…` | States of these adapters are never observed (aliases would record every action twice) |
 | Additional / excluded states | – | Observe IDs without a matching role, or never observe them (prefix, `*` as wildcard) |
+| Outdoor temperature / brightness | – | Optional states recorded every 15 minutes as context values |
 | Keep events | 60 days | Older days are deleted |
 
 Requirements: js-controller ≥ 6.0.11, Admin ≥ 7.6.20, Node.js ≥ 22.

@@ -122,11 +122,32 @@ Regelbasiert:
 - **Uhrzeit vs. Sonnenstand**: die Bezugsgröße mit der kleineren Streuung gewinnt
   („20 Min. nach Sonnenuntergang“); Koordinaten aus `system.config`
 
-### 3. Auslöser → Aktion
+### 3. Auslöser → Aktion und Aktion ↔ Aktion
 
 - Paare: Auslöser → manuelle Aktion innerhalb Δt (Standard 2 Min.); keine längeren Ketten in v0.1
+- **Auch zwei Handgriffe bilden ein Paar, Reihenfolge egal**: „Licht Terrasse und Rollladen Terrassentür schaltest du
+  abends fast immer zusammen“ – mal zuerst das Licht, mal zuerst den Rollladen. Gleiches Verfahren, nur ungeordnet.
+  Vorschlag z. B.: „Licht automatisch mitschalten, wenn du den Rollladen nach Sonnenuntergang hochfährst – und beim
+  Runterfahren wieder aus?“
 - Kennzahlen: Konfidenz P(Aktion | Auslöser) und **Lift** gegenüber der Grundrate der Aktion
 - Bedingung **„nur bei Dunkelheit“** (Sonnenstand) wird automatisch geprüft
+- Seltene Paare (z. B. nur an Sommerabenden) brauchen genug Wiederholungen (Richtwert 8–10 in einigen Wochen);
+  darunter erscheinen sie als Erkenntnis, nicht als Vorschlag
+
+### 3a. Bedingung → Aktion (nach 0.2)
+
+Dritte Musterart für Handgriffe, die weder an eine Uhrzeit noch an ein Ereignis gebunden sind, sondern an einen
+**Zustand** – Beispiel Hitzeschutz: „Du fährst den Rollladen Wohnzimmer Süd an 18 von 21 Tagen herunter, wenn es
+draußen über 26 °C hat und die Sonne auf der Südseite steht – an kühleren Tagen nie.“
+
+- Vergleich der Umgebungswerte zum Zeitpunkt der Handgriffe mit den Werten, wenn nicht gehandelt wurde → Schwellwert
+- Umgebungswerte: **Sonnenstand** (Höhe, Himmelsrichtung – berechnet aus Zeitstempel und Standort, wird nicht
+  gespeichert), **Außentemperatur** und **Helligkeit** (vom Benutzer im Admin gewählte States, da sich nicht
+  zuverlässig erkennen lässt, welcher Sensor „außen“ ist)
+- ✅ **Die Aufzeichnung der Umgebungswerte läuft bereits im Rekorder** (alle 15 Minuten, eigenes Log). Grund: Ohne
+  Altdaten-Import kann Cortex nur aus selbst gesammelten Daten lernen – wer erst später aufzeichnet, verliert einen
+  Sommer.
+- Hinweis: Übernimmt bereits shuttercontrol o. Ä. den Hitzeschutz, gibt es keine Handgriffe und keinen Vorschlag
 
 ### 4. Vorschläge
 
@@ -170,6 +191,9 @@ Die feste Obergrenze von 5 Vorschlägen erlaubt die Darstellung im Admin (jsonCo
 ### 6. Datenhaltung und Analyse
 
 - Eigenes Ereignis-Log: tägliche JSONL-Dateien im Instanz-Datenverzeichnis, rollierend (Standard 60 Tage)
+- Umgebungswerte: eigenes Log je Tag (`<datum>.context.jsonl`), Stichprobe alle 15 Minuten
+- ❓ Für Bedingung → Aktion reichen 60 Tage nicht (Sommer vs. Winter). Vor 0.3 klären: längere Aufbewahrung oder
+  verdichtete Langzeitdaten (z. B. Handgriffe je Tag mit Umgebungswerten)
 - Keine nativen Abhängigkeiten (kein SQLite) – problemlose Installation auf ARM
 - Analyse einmal nachts; Vorschläge bleiben tagsüber stabil
 - Größenordnung: einige tausend Ereignisse/Tag, < 1 Mio. in 60 Tagen → Analyse im Sekundenbereich, auch auf einem Pi
@@ -215,8 +239,8 @@ zeigt den Nutzen offen an („Seit Cortex sparst du ~40 Handgriffe pro Woche“)
 
 ## Bewusst nicht in v0.1
 
-Messwerte · Ketten mit mehr als zwei Gliedern · Anwesenheit/Personen · Saisonalität jenseits des Sonnenstands ·
-Umsetzen mit einem Klick (→ 0.2) · Import von Altdaten
+Messwerte als Auslöser · Bedingung → Aktion (→ nach 0.2; Aufzeichnung läuft schon) · Ketten mit mehr als zwei
+Gliedern · Anwesenheit/Personen · Umsetzen mit einem Klick (→ 0.2) · Import von Altdaten
 
 ## Fahrplan
 
@@ -226,6 +250,7 @@ Umsetzen mit einem Klick (→ 0.2) · Import von Altdaten
 | 0.0.x | Einstufungsregeln an realen Daten nachschärfen | Datenqualität |
 | 0.1.0 | Zeitmuster, Auslöser → Aktion, Vorschläge mit Feedback, State-API, Admin-Ansicht | MVP: Sind die Vorschläge gut? |
 | 0.2.0 | Umsetzen mit einem Klick: Cortex-Regeln, Hauptschalter, Beobachtung der eigenen Regeln | Nutzen ohne Skript-Kenntnisse |
+| 0.3.0 | Bedingung → Aktion (Hitzeschutz u. Ä.) aus Umgebungswerten | Muster, die vom Wetter abhängen |
 | danach | Cortex in SmartVis | bevorzugte Oberfläche |
 
 ## Offene Fragen
