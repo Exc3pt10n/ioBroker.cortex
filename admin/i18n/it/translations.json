@@ -18,5 +18,7 @@
     "Event log": "Registro eventi",
     "Keep events (days)": "Conserva eventi (giorni)",
     "Create anonymous export": "Crea esportazione anonima",
-    "Saves all recorded events without names, rooms or IDs in the file storage (Admin → Files → cortex.0/export) – to check the detection": "Salva tutti gli eventi registrati senza nomi, stanze o ID nell'archivio file (Admin → File → cortex.0/export) – per verificare il riconoscimento"
+    "Saves all recorded events without names, rooms or IDs in the file storage (Admin → Files → cortex.0/export) – to check the detection": "Salva tutti gli eventi registrati senza nomi, stanze o ID nell'archivio file (Admin → File → cortex.0/export) – per verificare il riconoscimento",
+    "Reaction window for automations outside ioBroker (seconds)": "Finestra di reazione per automazioni esterne a ioBroker (secondi)",
+    "A device that changes this soon after a sensor of the same adapter instance was switched by its bridge or central unit (e.g. Hue motion sensor, CCU program), not by a person": "Un dispositivo che cambia così poco dopo un sensore della stessa istanza dell'adattatore è stato comandato dal suo bridge o dalla centrale (ad es. sensore di movimento Hue, programma CCU), non da una persona"
 }

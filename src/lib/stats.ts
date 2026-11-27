@@ -34,7 +34,7 @@ export interface RecentAction {
 const MAX_RECENT = 30;
 
 function emptyCounts(): OriginCounts {
-    return { ui: 0, script: 0, device: 0, other: 0, sensor: 0 };
+    return { ui: 0, script: 0, device: 0, external: 0, other: 0, sensor: 0 };
 }
 
 /** Local date of a timestamp as YYYY-MM-DD */
@@ -80,6 +80,7 @@ export class StatsCollector {
         this.stats.events++;
         if (event.o === 'sensor') {
             this.stats.actions.sensor++;
+            this.remember(event, state);
             return;
         }
         if (event.o === 'other') {
@@ -93,6 +94,11 @@ export class StatsCollector {
             const perInstance = (this.stats.byInstance[instance] ??= {});
             perInstance[event.o] = (perInstance[event.o] ?? 0) + 1;
         }
+        this.remember(event, state);
+    }
+
+    /** Recent actions and sensor changes, so that the origin can be checked against what really happened */
+    private remember(event: RecordedEvent, state: ObservedState | undefined): void {
         this.recent.unshift({
             t: event.t,
             name: state?.name ?? event.id,
@@ -109,8 +115,8 @@ export class StatsCollector {
 
 /** Share of manual actions among all actions in percent (null without actions) */
 export function manualShare(stats: DayStats): number | null {
-    const { ui, device, script, other } = stats.actions;
-    const total = ui + device + script + other;
+    const { ui, device, script, external, other } = stats.actions;
+    const total = ui + device + script + external + other;
     if (!total) {
         return null;
     }

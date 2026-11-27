@@ -18,5 +18,7 @@
     "Event log": "Gebeurtenislogboek",
     "Keep events (days)": "Gebeurtenissen bewaren (dagen)",
     "Create anonymous export": "Anonieme export maken",
-    "Saves all recorded events without names, rooms or IDs in the file storage (Admin → Files → cortex.0/export) – to check the detection": "Slaat alle opgenomen gebeurtenissen zonder namen, ruimtes of ID's op in de bestandsopslag (Admin → Bestanden → cortex.0/export) – om de herkenning te controleren"
+    "Saves all recorded events without names, rooms or IDs in the file storage (Admin → Files → cortex.0/export) – to check the detection": "Slaat alle opgenomen gebeurtenissen zonder namen, ruimtes of ID's op in de bestandsopslag (Admin → Bestanden → cortex.0/export) – om de herkenning te controleren",
+    "Reaction window for automations outside ioBroker (seconds)": "Reactievenster voor automatiseringen buiten ioBroker (seconden)",
+    "A device that changes this soon after a sensor of the same adapter instance was switched by its bridge or central unit (e.g. Hue motion sensor, CCU program), not by a person": "Een apparaat dat zo kort na een sensor van dezelfde adapterinstantie verandert, is geschakeld door zijn bridge of centrale (bijv. Hue-bewegingsmelder, CCU-programma), niet door een persoon"
 }

@@ -18,5 +18,7 @@
     "Event log": "事件日志",
     "Keep events (days)": "保留事件（天）",
     "Create anonymous export": "创建匿名导出",
-    "Saves all recorded events without names, rooms or IDs in the file storage (Admin → Files → cortex.0/export) – to check the detection": "将所有记录的事件（不含名称、房间或 ID）保存到文件存储中（Admin → 文件 → cortex.0/export），用于检查识别"
+    "Saves all recorded events without names, rooms or IDs in the file storage (Admin → Files → cortex.0/export) – to check the detection": "将所有记录的事件（不含名称、房间或 ID）保存到文件存储中（Admin → 文件 → cortex.0/export），用于检查识别",
+    "Reaction window for automations outside ioBroker (seconds)": "ioBroker 外部自动化的反应窗口（秒）",
+    "A device that changes this soon after a sensor of the same adapter instance was switched by its bridge or central unit (e.g. Hue motion sensor, CCU program), not by a person": "在同一适配器实例的传感器变化后这么短时间内发生变化的设备，是由其网桥或中央单元切换的（例如 Hue 运动传感器、CCU 程序），而不是由人操作的"
 }

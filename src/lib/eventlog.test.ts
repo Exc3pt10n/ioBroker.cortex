@@ -57,7 +57,7 @@ describe('StatsCollector', () => {
         stats.addEvent({ ...event(7000, 'other'), s: 'mqtt' }, undefined);
         const today = stats.today;
         assert.equal(today.events, 5);
-        assert.deepEqual(today.actions, { ui: 0, device: 1, script: 1, other: 1, sensor: 1 });
+        assert.deepEqual(today.actions, { ui: 0, device: 1, script: 1, external: 0, other: 1, sensor: 1 });
         assert.deepEqual(today.unknownSenders, { mqtt: 1 });
         assert.equal(manualShare(today), 33);
     });
@@ -75,6 +75,7 @@ describe('buildExport', () => {
                     instance: 'hue.0',
                     name: 'Ceiling light',
                     room: 'Living room',
+                    device: 'hue.0.Living_room',
                 },
             ],
             [event(1000, 'device', 'hue.0.Living_room.on')],

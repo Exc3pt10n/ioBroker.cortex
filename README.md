@@ -20,12 +20,13 @@ Cortex uses no cloud AI. All decisions are derived locally from what happens in 
   | Origin | Meaning | Counts as |
   |---|---|---|
   | `ui` | command from a user interface or voice assistant (Admin, VIS, SmartVis, Alexa …) | manual |
-  | `device` | reported by the device without a command from ioBroker – a physical switch, the manufacturer's app, or an automation outside ioBroker (bridge, CCU) | manual (to be verified) |
+  | `device` | reported by the device without a command from ioBroker – a physical switch or the manufacturer's app | manual |
+  | `external` | like `device`, but within seconds after a sensor of the same adapter instance – an automation of the bridge or central unit (Hue motion sensor, CCU program) | automated |
   | `script` | command from a logic adapter (JavaScript, Scenes, shuttercontrol …) | automated |
   | `other` | command from an adapter in neither list – see `stats.unknownSenders` | unknown |
   | `sensor` | change of a trigger | – |
 
-  A device report shortly after a command only confirms it and is not counted again. Reports of other states of the same adapter instance right after a command (status channel, lamps of a group, a blind that is still moving) take over the origin of the command. Several changes of one adapter within a short time (scene, group) count as one action.
+  A device report shortly after a command only confirms it and is not counted again. Reports of the same device after a command (status channel, a blind that is still moving) and reports of other devices of the same adapter instance right after it (lamps of a group or scene) take over the origin of the command. Several changes of one adapter within a short time (scene, group) count as one action.
 - **Keeps a local event log** (one file per day in the instance data directory, 60 days by default).
 - **Shows statistics** as states: manual/automated actions today, share of manual actions, adapters with unknown origin, the most recent actions in plain text (`stats.recentText`).
 
@@ -41,6 +42,7 @@ Look at `cortex.0.stats.recentText` from time to time: does the origin of each a
 | Logic adapters | `javascript,scenes,shuttercontrol,…` | Commands from these adapters count as automated |
 | Confirmation window | 10 s | A device report within this time after a command confirms it |
 | Group window | 2 s | Changes of one adapter within this time count as one action |
+| Reaction window for automations outside ioBroker | 3 s | A device changing this soon after a sensor of the same instance counts as `external` |
 | Ignored adapters | `alias,javascript,…` | States of these adapters are never observed (aliases would record every action twice) |
 | Additional / excluded states | – | Observe IDs without a matching role, or never observe them (prefix, `*` as wildcard) |
 | Keep events | 60 days | Older days are deleted |

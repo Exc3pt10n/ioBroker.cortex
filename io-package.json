@@ -93,6 +93,7 @@
         "exclude": "",
         "confirmWindow": 10,
         "burstWindow": 2,
+        "externalWindow": 3,
         "retentionDays": 60
     },
     "objects": [],
@@ -249,8 +250,8 @@
             "type": "state",
             "common": {
                 "name": {
-                    "en": "Automated actions today",
-                    "de": "Automatische Aktionen heute"
+                    "en": "Automated actions today (ioBroker and outside)",
+                    "de": "Automatische Aktionen heute (ioBroker und außerhalb)"
                 },
                 "type": "number",
                 "role": "value",

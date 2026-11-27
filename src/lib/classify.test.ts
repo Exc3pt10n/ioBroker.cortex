@@ -9,8 +9,36 @@ const light: ObservedState = {
     role: 'switch.light',
     instance: 'hue.0',
     name: 'Ceiling light',
+    device: 'hue.0.Living_room',
 };
-const lamp2: ObservedState = { ...light, id: 'hue.0.Kitchen.on', name: 'Kitchen' };
+const lamp2: ObservedState = { ...light, id: 'hue.0.Kitchen.on', name: 'Kitchen', device: 'hue.0.Kitchen' };
+const hueMotion: ObservedState = {
+    id: 'hue.0.sensors.Hall.motion',
+    kind: 'trigger',
+    category: 'motion',
+    role: 'sensor.motion',
+    instance: 'hue.0',
+    name: 'Hall motion',
+    device: 'hue.0.sensors.Hall',
+};
+/** Homematic IP blind actuator: virtual channel (command) and status channel (actual position) of one device */
+const blindCommand: ObservedState = {
+    id: 'hm-rpc.0.BLIND.10.LEVEL',
+    kind: 'action',
+    category: 'blind',
+    role: 'level.blind',
+    instance: 'hm-rpc.0',
+    name: 'Bathroom blind',
+    device: 'hm-rpc.0.BLIND',
+};
+const blindStatus: ObservedState = { ...blindCommand, id: 'hm-rpc.0.BLIND.9.LEVEL', role: 'value.blind' };
+const otherSwitch: ObservedState = {
+    ...blindCommand,
+    id: 'hm-rpc.0.SWITCH.14.STATE',
+    category: 'switch',
+    role: 'switch',
+    device: 'hm-rpc.0.SWITCH',
+};
 const motion: ObservedState = {
     id: 'hm-rpc.0.ABC.1.MOTION',
     kind: 'trigger',
@@ -18,6 +46,7 @@ const motion: ObservedState = {
     role: 'sensor.motion',
     instance: 'hm-rpc.0',
     name: 'Hall motion',
+    device: 'hm-rpc.0.ABC',
 };
 
 function classifier(): Classifier {
@@ -26,6 +55,7 @@ function classifier(): Classifier {
         scriptAdapters: ['javascript', 'scenes', 'shuttercontrol'],
         confirmWindowMs: 10_000,
         burstWindowMs: 2_000,
+        externalWindowMs: 3_000,
     });
 }
 
@@ -119,31 +149,48 @@ describe('Classifier', () => {
         assert.notEqual(b.event.b, d.event.b);
     });
 
-    it('device reports after a command to the same instance inherit its origin (status channel, group, moving blind)', () => {
+    it('reports of the same device keep belonging to a command (status channel, moving blind)', () => {
         const c = classifier();
-        c.classify(light, change(1000, true, false, 'system.adapter.javascript.0'));
-        // Another state of the same instance reports shortly after the command …
-        const sibling = c.classify(lamp2, change(3000, true, true, 'system.adapter.hue.0'));
-        assert.ok(sibling.type === 'event');
-        assert.equal(sibling.event.o, 'script');
-        assert.equal(sibling.event.c, 1);
-        // … and reports that keep coming stay attached to it (blind moving for 30 s)
-        let t = 3000;
-        for (let i = 0; i < 5; i++) {
-            t += 6000;
-            assert.equal(origin(c.classify(lamp2, change(t, i, true, 'system.adapter.hue.0'))), 'script');
+        c.classify(blindCommand, change(1000, 100, false, 'system.adapter.shuttercontrol.0'));
+        let t = 1000;
+        for (const level of [90, 78.5, 86, 100]) {
+            t += 5000;
+            const result = c.classify(blindStatus, change(t, level, true, 'system.adapter.hm-rpc.0'));
+            assert.ok(result.type === 'event');
+            assert.equal(result.event.o, 'script');
+            assert.equal(result.event.c, 1);
         }
         // A report after a quiet period is a new device event
-        assert.equal(origin(c.classify(lamp2, change(t + 60_000, true, true, 'system.adapter.hue.0'))), 'device');
+        assert.equal(origin(c.classify(blindStatus, change(t + 60_000, 0, true, 'system.adapter.hm-rpc.0'))), 'device');
     });
 
-    it('commands to another instance do not take over device reports', () => {
+    it('real case: wall switch 10 s after an unrelated command on the same CCU stays a device action', () => {
         const c = classifier();
-        c.classify(motion, change(500, true, true, 'system.adapter.hm-rpc.0'));
-        c.classify(
-            { ...light, id: 'shelly.0.x.Switch', instance: 'shelly.0' },
-            change(1000, true, false, 'system.adapter.javascript.0'),
-        );
-        assert.equal(origin(c.classify(light, change(2000, true, true, 'system.adapter.hue.0'))), 'device');
+        c.classify(otherSwitch, change(23_000, true, false, 'system.adapter.smartvis.0'));
+        c.classify(otherSwitch, change(24_000, false, false, 'system.adapter.smartvis.0'));
+        assert.equal(origin(c.classify(blindStatus, change(34_000, 90, true, 'system.adapter.hm-rpc.0'))), 'device');
+        assert.equal(origin(c.classify(blindCommand, change(35_000, 0, true, 'system.adapter.hm-rpc.0'))), 'device');
+    });
+
+    it('lamps of a group switched by a command take over its origin, but only right after it', () => {
+        const c = classifier();
+        c.classify(light, change(1000, true, false, 'system.adapter.javascript.0'));
+        assert.equal(origin(c.classify(lamp2, change(1800, true, true, 'system.adapter.hue.0'))), 'script');
+        assert.equal(origin(c.classify(lamp2, change(9000, false, true, 'system.adapter.hue.0'))), 'device');
+    });
+
+    it('real case: Hue motion sensor switches the hall light on the bridge = external', () => {
+        const c = classifier();
+        c.classify(hueMotion, change(19_000, true, true, 'system.adapter.hue.0'));
+        assert.equal(origin(c.classify(light, change(19_400, true, true, 'system.adapter.hue.0'))), 'external');
+        assert.equal(origin(c.classify(lamp2, change(20_100, true, true, 'system.adapter.hue.0'))), 'external');
+        // Pressing a switch long after walking past the sensor is a person
+        assert.equal(origin(c.classify(lamp2, change(40_000, false, true, 'system.adapter.hue.0'))), 'device');
+    });
+
+    it('sensors of another instance do not make device changes external', () => {
+        const c = classifier();
+        c.classify(motion, change(1000, true, true, 'system.adapter.hm-rpc.0'));
+        assert.equal(origin(c.classify(light, change(1500, true, true, 'system.adapter.hue.0'))), 'device');
     });
 });

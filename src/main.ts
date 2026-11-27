@@ -58,6 +58,7 @@ class Cortex extends utils.Adapter {
             scriptAdapters: parseList(this.config.scriptAdapters),
             confirmWindowMs: clamp(this.config.confirmWindow, 1, 120, 10) * 1000,
             burstWindowMs: clamp(this.config.burstWindow, 0, 30, 2) * 1000,
+            externalWindowMs: clamp(this.config.externalWindow, 0, 30, 3) * 1000,
         };
     }
 
@@ -186,14 +187,14 @@ class Cortex extends utils.Adapter {
         }
         this.statsDirty = false;
         const today = this.stats.today;
-        const { ui, device, script, other } = today.actions;
+        const { ui, device, script, external, other } = today.actions;
         const since = (await this.getStateAsync('info.recordingSince'))?.val;
         if (typeof since === 'number') {
             await this.setStateAsync('info.recordingDays', Math.floor((Date.now() - since) / 86_400_000), true);
         }
         await this.setStateAsync('stats.today', JSON.stringify(today), true);
         await this.setStateAsync('stats.manualActions', ui + device, true);
-        await this.setStateAsync('stats.automatedActions', script, true);
+        await this.setStateAsync('stats.automatedActions', script + external, true);
         await this.setStateAsync('stats.unknownActions', other, true);
         await this.setStateAsync('stats.manualShare', manualShare(today), true);
         await this.setStateAsync('stats.unknownSenders', Object.keys(today.unknownSenders).sort().join(', '), true);

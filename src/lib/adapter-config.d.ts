@@ -11,6 +11,7 @@ declare global {
             exclude: string;
             confirmWindow: number;
             burstWindow: number;
+            externalWindow: number;
             retentionDays: number;
         }
     }

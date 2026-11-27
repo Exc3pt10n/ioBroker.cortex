@@ -61,7 +61,8 @@ Einstufung jedes Ereignisses beim Eingang:
 |---|---|
 | `ack=false`, `from=system.adapter.javascript.*` / Szenen- und Logik-Adapter | `script` (automatisch) |
 | `ack=false`, `from=system.adapter.{web,admin,smartvis,alexa2,…}.*` oder `from=system.user.*` | `ui` (manuell) |
-| `ack=true` vom Geräte-Adapter **ohne** vorangegangenen Befehl | `device` – physischer Schalter, Hersteller-App **oder** Automation außerhalb von ioBroker (Hue-Routine, CCU-Programm, Shelly-Zeitplan); zählt vorläufig als manuell |
+| `ack=true` vom Geräte-Adapter **ohne** vorangegangenen Befehl | `device` – physischer Schalter oder Hersteller-App (manuell) |
+| wie `device`, aber höchstens 3 s nach einem Sensor **derselben Instanz** | `external` – Automation der Bridge/Zentrale (Hue-Bewegungsmelder, CCU-Programm); automatisch. Solche Systeme steuern nur eigene Geräte, und ein Mensch braucht länger vom Bewegungsmelder bis zum Schalter |
 | `ack=true` vom Geräte-Adapter **nach** einem Befehl | Bestätigung – kein eigenes Ereignis, erbt die Einstufung des Befehls |
 | Sensor-Rollen (`sensor.motion`, `sensor.door`, `sensor.window`, …) | `sensor` |
 | Befehl eines Adapters, der in keiner Liste steht | `other` – wird in `stats.unknownSenders` angezeigt, damit der Benutzer ihn zuordnen kann |
@@ -69,10 +70,16 @@ Einstufung jedes Ereignisses beim Eingang:
 Mehrere Änderungen eines Adapters innerhalb kurzer Zeit (Standard 2 s) zählen als **eine** Aktion – so werden
 Szenen und Gruppen allgemein behandelt, ohne Adapter-Sonderlogik.
 
-Meldungen **anderer** States derselben Adapter-Instanz kurz nach einem Befehl übernehmen dessen Herkunft
-(Folge eines Befehls). Das Fenster verlängert sich, solange Meldungen weiterkommen. Damit sind allgemein abgedeckt:
-Status-Kanäle (Homematic IP meldet den Ist-Zustand in einem eigenen Kanal), Lampen einer Gruppe oder Szene und
-Zwischenstände eines fahrenden Rollladens.
+Folgen eines Befehls übernehmen dessen Herkunft:
+
+- Meldungen **desselben Geräts** (Status-Kanal, Zwischenstände eines fahrenden Rollladens), solange sie weiterkommen
+  (Fenster 10 s, verlängert sich mit jeder Meldung)
+- Meldungen **anderer Geräte derselben Instanz** nur unmittelbar danach (2 s): Lampen einer Gruppe oder Szene.
+  Länger wäre falsch – eine ganze CCU ist eine Instanz, und ein Wandtaster-Druck kurz nach einem fremden Befehl
+  wurde im ersten Test sonst dem Befehl zugeschlagen.
+
+Bekanntes Restrisiko: Mehrere Ausgänge eines Aktors sind *ein* Gerät (z. B. 4 Rollläden an einem HmIPW-DRBL4).
+Ein Tastendruck, während ein anderer Rollladen desselben Aktors noch fährt, wird dessen Befehl zugeordnet.
 
 Erkenntnisse aus dem ersten echten System (Homematic IP, Philips Hue, eufy, Alexa, KEBA, Toshiba):
 
@@ -87,8 +94,9 @@ Erkenntnisse aus dem ersten echten System (Homematic IP, Philips Hue, eufy, Alex
 🔬 Offene Risiken, die der Rekorder klären soll:
 
 - Nicht jeder Adapter setzt `from` zuverlässig (z. B. Polling-Adapter).
-- `device` vermischt Menschen am Gerät mit Automationen außerhalb von ioBroker. Idee für 0.0.x: Automationen
-  sind zeitlich präzise (täglich 07:00:00 ± wenige Sekunden), Menschen streuen.
+- Automationen außerhalb von ioBroker, die nicht auf einen Sensor reagieren (Zeitpläne der Bridge, Licht aus nach
+  Ablauf einer Nachlaufzeit), bleiben `device`. Idee für 0.0.x: Zeitpläne sind präzise (täglich 07:00:00 ± wenige
+  Sekunden), Menschen streuen.
 
 Die Zuordnung „Adapter → Einstufung“ ist im Admin überschreibbar. Ein **anonymer Export** (ohne Namen, Räume
 und Objekt-IDs) erlaubt, die Einstufung auch mit Daten anderer Installationen zu prüfen.

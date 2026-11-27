@@ -23,6 +23,8 @@ export interface ObservedState {
     /** Readable name (channel/device name, otherwise state name, otherwise id) */
     name: string;
     room?: string;
+    /** Device the state belongs to: nearest parent of type device, otherwise channel, otherwise the parent */
+    device: string;
 }
 
 export interface RelevanceOptions {
@@ -160,6 +162,16 @@ function readableName(id: string, objects: ObjectMap, lang: string): string {
     return own ?? id;
 }
 
+function deviceOf(id: string, objects: ObjectMap): string {
+    const ancestors = parents(id);
+    return (
+        ancestors.find(p => objects[p]?.type === 'device') ??
+        ancestors.find(p => objects[p]?.type === 'channel') ??
+        ancestors[0] ??
+        id
+    );
+}
+
 /** Room per state from enum.rooms (members may be the state itself or one of its parents) */
 function roomIndex(objects: ObjectMap, lang: string): Map<string, string> {
     const index = new Map<string, string>();
@@ -237,6 +249,7 @@ export function findRelevant(objects: ObjectMap, options: RelevanceOptions): Map
             instance,
             name: readableName(id, objects, options.lang),
             room: findRoom(id, rooms),
+            device: deviceOf(id, objects),
         });
     }
     return result;

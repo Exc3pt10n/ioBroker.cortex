@@ -11,11 +11,14 @@ import { instanceOf, type ObservedState } from './relevance';
  * - ui: command from a user interface or voice assistant (admin, web/vis, smartvis, alexa2 …)
  * - script: command from a logic adapter (javascript, scenes, shuttercontrol …)
  * - device: change reported by the device without a preceding command from ioBroker –
- *   a physical switch, an app of the manufacturer, or an automation outside ioBroker (bridge, CCU)
+ *   a physical switch or an app of the manufacturer
+ * - external: like device, but within seconds after a sensor of the same adapter instance changed – an automation
+ *   outside ioBroker (Hue bridge, CCU program, Shelly). Such systems only control their own devices, and a person
+ *   needs longer from walking past a motion sensor to pressing a switch.
  * - other: command from an adapter that is in neither list
  * - sensor: change of a trigger (motion, door, window)
  */
-export type Origin = 'ui' | 'script' | 'device' | 'other' | 'sensor';
+export type Origin = 'ui' | 'script' | 'device' | 'external' | 'other' | 'sensor';
 
 /** Origins that count as manual actions */
 export const MANUAL_ORIGINS: readonly Origin[] = ['ui', 'device'];
@@ -27,6 +30,8 @@ export interface ClassifierOptions {
     confirmWindowMs: number;
     /** Changes of one adapter instance with the same origin closer than this belong to one action (scene, group) */
     burstWindowMs: number;
+    /** A device change this soon after a sensor change of the same instance is an automation outside ioBroker */
+    externalWindowMs: number;
 }
 
 export interface StateChange {
@@ -89,8 +94,12 @@ interface LastBurst {
 export class Classifier {
     private readonly pending = new Map<string, Pending>();
     private readonly bursts = new Map<string, LastBurst>();
-    /** Last command per adapter instance: device reports shortly after it are its consequences */
+    /** Last command per device: its reports belong to the command as long as they keep coming */
     private readonly commands = new Map<string, LastCommand>();
+    /** Last command per adapter instance: reports of other devices right after it (group, scene) belong to it */
+    private readonly instanceCommands = new Map<string, LastCommand>();
+    /** Last sensor change per adapter instance */
+    private readonly sensors = new Map<string, number>();
 
     public constructor(private options: ClassifierOptions) {}
 
@@ -106,6 +115,7 @@ export class Classifier {
             if (!changed) {
                 return { type: 'ignored' };
             }
+            this.sensors.set(state.instance, change.ts);
             return { type: 'event', event: this.event(state, change, 'sensor', sender) };
         }
 
@@ -113,12 +123,18 @@ export class Classifier {
             // Command: also counts when the value does not change (a person pressed "on" again)
             const origin = this.commandOrigin(sender);
             this.pending.set(state.id, { ts: change.ts });
-            this.commands.set(state.instance, { ts: change.ts, origin, sender });
+            this.commands.set(state.device, { ts: change.ts, origin, sender });
+            this.instanceCommands.set(state.instance, { ts: change.ts, origin, sender });
             return { type: 'event', event: this.event(state, change, origin, sender) };
         }
 
-        const command = this.commands.get(state.instance);
+        const command = this.commands.get(state.device);
         const followsCommand = !!command && change.ts - command.ts <= this.options.confirmWindowMs;
+        // Other devices of the instance only right after the command: a whole CCU is one instance, and a wall switch
+        // pressed a few seconds after an unrelated command must stay a manual action
+        const instanceCommand = this.instanceCommands.get(state.instance);
+        const followsInstanceCommand =
+            !!instanceCommand && change.ts - instanceCommand.ts <= this.options.burstWindowMs;
         const pending = this.pending.get(state.id);
         this.pending.delete(state.id);
         if (pending && change.ts - pending.ts <= this.options.confirmWindowMs) {
@@ -132,11 +148,19 @@ export class Classifier {
         }
         const origin = this.deviceOrigin(state, sender);
         if (origin === 'device' && followsCommand) {
-            // Consequence of a command to the same instance: other channel of the device (status channel of a
-            // blind, virtual channels), lamps of a group or scene, intermediate positions while a blind moves
+            // Consequence of a command to the same device: status channel, virtual channels, a moving blind
             this.slide(command, change.ts);
             const event = this.event(state, change, command.origin, command.sender);
             return { type: 'event', event: { ...event, c: 1 } };
+        }
+        if (origin === 'device' && followsInstanceCommand) {
+            // Consequence of a command to another device of the instance: lamps of a group or scene
+            const event = this.event(state, change, instanceCommand.origin, instanceCommand.sender);
+            return { type: 'event', event: { ...event, c: 1 } };
+        }
+        const sensorTs = this.sensors.get(state.instance);
+        if (origin === 'device' && sensorTs !== undefined && change.ts - sensorTs <= this.options.externalWindowMs) {
+            return { type: 'event', event: this.event(state, change, 'external', sender) };
         }
         return { type: 'event', event: this.event(state, change, origin, sender) };
     }
